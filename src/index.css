@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-brand-primary: var(--brand-primary);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-action-like: var(--action-like);
+}
+
+:root {
+  /* Light Mode */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F3F4F6;
+  --brand-primary: #4F46E5;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --action-like: #E11D48;
+}
+
+
+
+.dark {
+  /* Dark Mode (Class Override) */
+  --bg-primary: #121212;
+  --bg-secondary: #1E1E1E;
+  --brand-primary: #818CF8;
+  --text-primary: #F9FAFB;
+  --text-secondary: #9CA3AF;
+  --action-like: #FB7185;
+}
+
+@layer base {
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
+}
