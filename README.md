@@ -5,7 +5,7 @@
 To clone the repository, run the following command in your terminal:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/abhijitsinha-dev/connecthub-frontend.git
 cd connecthub-frontend
 ```
 
