@@ -11,24 +11,22 @@
 
 :root {
   /* Light Mode */
-  --bg-primary: #FFFFFF;
-  --bg-secondary: #F3F4F6;
-  --brand-primary: #4F46E5;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f4f6;
+  --brand-primary: #4f46e5;
   --text-primary: #111827;
-  --text-secondary: #6B7280;
-  --action-like: #E11D48;
+  --text-secondary: #6b7280;
+  --action-like: #e11d48;
 }
-
-
 
 .dark {
   /* Dark Mode (Class Override) */
   --bg-primary: #121212;
-  --bg-secondary: #1E1E1E;
-  --brand-primary: #818CF8;
-  --text-primary: #F9FAFB;
-  --text-secondary: #9CA3AF;
-  --action-like: #FB7185;
+  --bg-secondary: #1e1e1e;
+  --brand-primary: #818cf8;
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --action-like: #fb7185;
 }
 
 @layer base {

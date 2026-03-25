@@ -1,38 +1,38 @@
-import { createBrowserRouter } from "react-router-dom";
-import LoginSignup from "../pages/login-signup/LoginSignup";
-import ForgotPassword from "../pages/forgot-password/ForgotPassword";
-import Layout from "../components/layout/Layout";
-import Home from "../pages/home/Home";
-import Create from "../pages/create/Create";
-import Messenger from "../pages/messenger/Messenger";
-import Profile from "../pages/profile/Profile";
+import { createBrowserRouter } from 'react-router-dom';
+import LoginSignup from '../pages/login-signup/LoginSignup';
+import ForgotPassword from '../pages/forgot-password/ForgotPassword';
+import Layout from '../components/layout/Layout';
+import Home from '../pages/home/Home';
+import Create from '../pages/create/Create';
+import Messenger from '../pages/messenger/Messenger';
+import Profile from '../pages/profile/Profile';
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <LoginSignup />,
   },
   {
-    path: "/forgot-password",
+    path: '/forgot-password',
     element: <ForgotPassword />,
   },
   {
     element: <Layout />,
     children: [
       {
-        path: "/home",
+        path: '/home',
         element: <Home />,
       },
       {
-        path: "/create",
+        path: '/create',
         element: <Create />,
       },
       {
-        path: "/messenger",
+        path: '/messenger',
         element: <Messenger />,
       },
       {
-        path: "/profile",
+        path: '/profile',
         element: <Profile />,
       },
     ],
