@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --color-bg-primary: var(--bg-primary);
@@ -30,7 +30,15 @@
 }
 
 @layer base {
+  html,
+  body,
+  #root {
+    min-height: 100dvh;
+    width: 100%;
+  }
+
   body {
+    margin: 0;
     background-color: var(--bg-primary);
     color: var(--text-primary);
   }

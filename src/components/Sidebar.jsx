@@ -49,7 +49,8 @@ const Sidebar = () => {
         >
           {!isCollapsed && (
             <h2 className="text-2xl font-bold text-text-primary transition-opacity duration-300">
-              ConnectHub
+              <span className="text-brand-primary">Connect</span>
+              <span className="text-action-like">Hub</span>
             </h2>
           )}
           <button

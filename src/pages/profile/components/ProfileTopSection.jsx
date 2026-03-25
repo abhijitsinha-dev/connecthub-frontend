@@ -1,17 +1,93 @@
+import { useRef, useState } from 'react';
 import { BiEdit, BiCamera, BiInfoCircle } from 'react-icons/bi';
+import ProfileImageActionModal from './ProfileImageActionModal';
 
-const ProfileTopSection = ({ userData, onImageChange, onOpenAbout }) => {
+const ProfileTopSection = ({
+  userData,
+  onImageChange,
+  onOpenAbout,
+  onRemoveProfilePicture,
+  onRemoveCoverPhoto,
+  hasCustomProfilePicture,
+  hasCustomCoverPhoto,
+}) => {
+  const fileInputRef = useRef(null);
+  const coverInputRef = useRef(null);
+  const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
+  const [isCoverMenuOpen, setIsCoverMenuOpen] = useState(false);
+
+  const closeAllMenus = () => {
+    setIsAvatarMenuOpen(false);
+    setIsCoverMenuOpen(false);
+  };
+
+  const openProfilePicturePicker = () => {
+    closeAllMenus();
+    fileInputRef.current?.click();
+  };
+
+  const openCoverPicker = () => {
+    closeAllMenus();
+    coverInputRef.current?.click();
+  };
+
+  const handleProfilePictureClick = () => {
+    if (hasCustomProfilePicture) {
+      setIsAvatarMenuOpen(true);
+      setIsCoverMenuOpen(false);
+      return;
+    }
+
+    openProfilePicturePicker();
+  };
+
+  const handleCoverClick = () => {
+    if (hasCustomCoverPhoto) {
+      setIsCoverMenuOpen(true);
+      setIsAvatarMenuOpen(false);
+      return;
+    }
+
+    openCoverPicker();
+  };
+
+  const handleProfilePictureChange = (e) => {
+    onImageChange(e, 'profilePicture');
+    closeAllMenus();
+  };
+
+  const handleCoverChange = (e) => {
+    onImageChange(e, 'coverPhoto');
+    closeAllMenus();
+  };
+
+  const handleRemoveProfilePicture = () => {
+    onRemoveProfilePicture();
+    closeAllMenus();
+  };
+
+  const handleRemoveCover = () => {
+    onRemoveCoverPhoto();
+    closeAllMenus();
+  };
+
   return (
     <div className="flex flex-col">
       {/* Cover Photo */}
       <div className="relative h-48 sm:h-64 w-full rounded-b-3xl overflow-hidden shadow-sm group">
-        <label className="cursor-pointer block w-full h-full relative">
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => onImageChange(e, 'coverPhoto')}
-          />
+        <input
+          ref={coverInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleCoverChange}
+        />
+        <button
+          type="button"
+          onClick={handleCoverClick}
+          className="cursor-pointer block w-full h-full relative"
+          aria-label="Update cover picture"
+        >
           <img
             src={userData.coverPhoto}
             alt="Cover"
@@ -22,7 +98,7 @@ const ProfileTopSection = ({ userData, onImageChange, onOpenAbout }) => {
             <BiCamera className="text-white text-6xl opacity-40 group-hover:opacity-70 transition-opacity duration-200 drop-shadow-md" />
           </div>
           <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/20 pointer-events-none"></div>
-        </label>
+        </button>
       </div>
 
       {/* Profile Header (Avatar, Name, Actions) */}
@@ -31,13 +107,19 @@ const ProfileTopSection = ({ userData, onImageChange, onOpenAbout }) => {
           <div className="flex items-center gap-4 min-w-0">
             {/* Avatar */}
             <div className="relative group">
-              <label className="cursor-pointer block">
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => onImageChange(e, 'profilePicture')}
-                />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleProfilePictureChange}
+              />
+              <button
+                type="button"
+                onClick={handleProfilePictureClick}
+                className="cursor-pointer block"
+                aria-label="Update profile picture"
+              >
                 <div className="w-40 h-40 rounded-full border-4 border-bg-primary overflow-hidden shadow-lg bg-bg-secondary relative">
                   <img
                     src={userData.profilePicture}
@@ -49,7 +131,7 @@ const ProfileTopSection = ({ userData, onImageChange, onOpenAbout }) => {
                     <BiCamera className="text-white text-5xl opacity-40 group-hover:opacity-70 transition-opacity duration-200 drop-shadow-md" />
                   </div>
                 </div>
-              </label>
+              </button>
             </div>
 
             {/* Basic Info */}
@@ -117,6 +199,24 @@ const ProfileTopSection = ({ userData, onImageChange, onOpenAbout }) => {
           </div>
         </div>
       </div>
+
+      <ProfileImageActionModal
+        isOpen={isAvatarMenuOpen}
+        onClose={closeAllMenus}
+        onChange={openProfilePicturePicker}
+        onRemove={handleRemoveProfilePicture}
+        changeLabel="Change Profile Picture"
+        removeLabel="Remove Profile Picture"
+      />
+
+      <ProfileImageActionModal
+        isOpen={isCoverMenuOpen}
+        onClose={closeAllMenus}
+        onChange={openCoverPicker}
+        onRemove={handleRemoveCover}
+        changeLabel="Change Cover Picture"
+        removeLabel="Remove Cover Picture"
+      />
     </div>
   );
 };

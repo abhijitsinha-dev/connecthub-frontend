@@ -3,6 +3,11 @@ import ProfileTopSection from './components/ProfileTopSection';
 import ProfilePostsSection from './components/ProfilePostsSection';
 import ProfileAboutModal from './components/ProfileAboutModal';
 
+const DEFAULT_PROFILE_PICTURE =
+  'https://ui-avatars.com/api/?name=User&background=e5e7eb&color=64748b&size=300';
+const DEFAULT_COVER_PHOTO =
+  'https://placehold.co/2000x600/e2e8f0/64748b?text=Cover+Photo';
+
 const MOCK_POSTS = [
   {
     id: 1,
@@ -77,24 +82,58 @@ const Profile = () => {
     }
   };
 
+  const handleRemoveProfilePicture = () => {
+    setUserData((prev) => ({
+      ...prev,
+      profilePicture: DEFAULT_PROFILE_PICTURE,
+    }));
+  };
+
+  const handleRemoveCoverPhoto = () => {
+    setUserData((prev) => ({
+      ...prev,
+      coverPhoto: DEFAULT_COVER_PHOTO,
+    }));
+  };
+
+  const resolvedProfilePicture =
+    userData.profilePicture || DEFAULT_PROFILE_PICTURE;
+  const resolvedCoverPhoto = userData.coverPhoto || DEFAULT_COVER_PHOTO;
+
+  const resolvedUserData = {
+    ...userData,
+    profilePicture: resolvedProfilePicture,
+    coverPhoto: resolvedCoverPhoto,
+  };
+
+  const hasCustomProfilePicture =
+    Boolean(userData.profilePicture) &&
+    userData.profilePicture !== DEFAULT_PROFILE_PICTURE;
+  const hasCustomCoverPhoto =
+    Boolean(userData.coverPhoto) && userData.coverPhoto !== DEFAULT_COVER_PHOTO;
+
   return (
     <div className="max-w-4xl mx-auto w-full pb-12 animate-fade-in relative">
       <ProfileTopSection
-        userData={userData}
+        userData={resolvedUserData}
         onImageChange={handleImageChange}
+        onRemoveProfilePicture={handleRemoveProfilePicture}
+        onRemoveCoverPhoto={handleRemoveCoverPhoto}
+        hasCustomProfilePicture={hasCustomProfilePicture}
+        hasCustomCoverPhoto={hasCustomCoverPhoto}
         onOpenAbout={() => setIsAboutOpen(true)}
       />
 
       <ProfilePostsSection
         posts={MOCK_POSTS}
-        userData={userData}
+        userData={resolvedUserData}
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
 
       <ProfileAboutModal
         isOpen={isAboutOpen}
-        userData={userData}
+        userData={resolvedUserData}
         onClose={() => setIsAboutOpen(false)}
       />
     </div>
