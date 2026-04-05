@@ -14,22 +14,24 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false); // Useful for showing spinners during auth calls
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return localStorage.getItem('isLoggedIn') === 'true';
+  const [token, setToken] = useState(() => {
+    return localStorage.getItem('token') || null;
   });
 
   // A helper function to update the user state after login/signup
-  const handleAuthSuccess = useCallback(userData => {
+  const handleAuthSuccess = useCallback((userData, token) => {
     setUser(userData);
-    setIsLoggedIn(true);
-    localStorage.setItem('isLoggedIn', 'true');
+    if (token) {
+      setToken(token);
+      localStorage.setItem('token', token);
+    }
   }, []);
 
   // A helper function for logging out
   const logout = useCallback(() => {
     setUser(null);
-    setIsLoggedIn(false);
-    localStorage.removeItem('isLoggedIn');
+    setToken(null);
+    localStorage.removeItem('token');
     router.navigate('/');
   }, []);
 
@@ -37,13 +39,13 @@ export const AuthProvider = ({ children }) => {
   const value = useMemo(
     () => ({
       user,
-      isLoggedIn,
+      token,
       isLoading,
       setIsLoading,
       handleAuthSuccess,
       logout,
     }),
-    [user, isLoggedIn, isLoading, handleAuthSuccess, logout]
+    [user, token, isLoading, handleAuthSuccess, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

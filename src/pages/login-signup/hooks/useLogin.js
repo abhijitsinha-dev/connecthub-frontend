@@ -48,7 +48,9 @@ export const useLogin = () => {
           password: loginData.password,
         });
 
-        handleAuthSuccess(response.data);
+        const { user, token } = response.data;
+
+        handleAuthSuccess(user, token);
         navigate('/home');
       } catch (err) {
         const responseData = err.response?.data;

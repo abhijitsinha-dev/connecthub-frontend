@@ -72,7 +72,7 @@ export const useSignup = onSuccessCallback => {
           confirmPassword: signupData.confirmPassword,
         });
 
-        setUser(response?.data);
+        setUser(response?.data?.user || null);
         onSuccessCallback();
       } catch (err) {
         const responseData = err.response?.data;
@@ -105,13 +105,16 @@ export const useSignup = onSuccessCallback => {
     setIsLoading(true);
     try {
       // Pull the userId directly from the context we populated during signup!
-      await authApi.verifyEmail({
+      const response = await authApi.verifyEmail({
         id: user?.id,
         otp,
       });
 
       // Update the context to reflect that the user is now verified
-      handleAuthSuccess({ ...user, emailVerified: true });
+      handleAuthSuccess(
+        { ...user, emailVerified: true },
+        response?.data?.token
+      );
     } catch (err) {
       // Throw the error so the OtpForm can catch it and display it locally
       throw new Error(err.response?.data?.message || 'Invalid OTP');

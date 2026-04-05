@@ -11,6 +11,15 @@ const axiosClient = axios.create({
   withCredentials: true,
 });
 
+axiosClient.interceptors.request.use(config => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`; // Send via header!
+  }
+
+  return config;
+});
+
 // Response Interceptor: Global error handling
 axiosClient.interceptors.response.use(
   response => {

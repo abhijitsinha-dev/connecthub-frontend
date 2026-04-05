@@ -5,7 +5,7 @@ import { authApi } from '../services/auth.service';
 
 const useAuthCheck = () => {
   const navigate = useNavigate();
-  const { handleAuthSuccess, logout, isLoggedIn } = useAuth();
+  const { handleAuthSuccess, logout, token } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const hasChecked = useRef(false);
 
@@ -14,7 +14,7 @@ const useAuthCheck = () => {
 
     const verifySession = async () => {
       // 2. If not logged in, boot them to the login page
-      if (!isLoggedIn) {
+      if (!token) {
         navigate('/');
         return;
       }
@@ -26,7 +26,7 @@ const useAuthCheck = () => {
         // TODO: Replace this fetch with your actual API call endpoint/axios instance
         const response = await authApi.me(); // This should return the current user's data if the session is valid
 
-        handleAuthSuccess(response.data);
+        handleAuthSuccess(response.data.user);
         if (['/', '/index.html', ''].includes(location.pathname)) {
           navigate('/home', { replace: true });
         }
@@ -41,7 +41,7 @@ const useAuthCheck = () => {
     verifySession();
 
     hasChecked.current = true;
-  }, [navigate, handleAuthSuccess, logout, setIsLoading, isLoggedIn]);
+  }, [navigate, handleAuthSuccess, logout, setIsLoading, token]);
 
   return { isLoading };
 };
