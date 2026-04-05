@@ -27,8 +27,8 @@ const useAuthCheck = () => {
         const response = await authApi.me(); // This should return the current user's data if the session is valid
 
         handleAuthSuccess(response.data);
-        if (location.pathname === '/' || location.pathname === '/index.html') {
-          navigate('/home', { replace: true }); // 4. Added replace: true for cleaner history
+        if (['/', '/index.html', ''].includes(location.pathname)) {
+          navigate('/home', { replace: true });
         }
       } catch (error) {
         console.error('Failed to verify user session:', error);
