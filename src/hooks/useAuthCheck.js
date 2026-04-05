@@ -25,11 +25,10 @@ const useAuthCheck = () => {
 
         // TODO: Replace this fetch with your actual API call endpoint/axios instance
         const response = await authApi.me(); // This should return the current user's data if the session is valid
-        console.log(response);
 
         handleAuthSuccess(response.data);
-        if (location.pathname === '/') {
-          navigate('/home');
+        if (location.pathname === '/' || location.pathname === '/index.html') {
+          navigate('/home', { replace: true }); // 4. Added replace: true for cleaner history
         }
       } catch (error) {
         console.error('Failed to verify user session:', error);
