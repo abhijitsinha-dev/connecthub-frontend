@@ -28,7 +28,9 @@ const useAuthCheck = () => {
         console.log(response);
 
         handleAuthSuccess(response.data);
-        navigate('/home');
+        if (location.pathname === '/') {
+          navigate('/home');
+        }
       } catch (error) {
         console.error('Failed to verify user session:', error);
         logout();
