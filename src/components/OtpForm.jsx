@@ -1,29 +1,35 @@
-import { useState } from "react";
-import { BiArrowBack, BiSolidMessageRoundedDetail } from "react-icons/bi";
-import Button from "./Button";
+import { useState } from 'react';
+import { BiArrowBack, BiSolidMessageRoundedDetail } from 'react-icons/bi';
+import Button from './Button';
 
-const OtpForm = ({ email, onSuccess, onBack }) => {
-  const [otp, setOtp] = useState("");
-  const [error, setError] = useState("");
+const OtpForm = ({ email, onSubmitOtp, onBack }) => {
+  const [otp, setOtp] = useState('');
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const value = e.target.value;
     // only allow numbers and restrict to 6 digits max
-    if (value === "" || (/^[0-9\b]+$/.test(value) && value.length <= 6)) {
+    if (value === '' || (/^[0-9\b]+$/.test(value) && value.length <= 6)) {
       setOtp(value);
-      if (error) setError("");
+      if (error) setError('');
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (otp.length !== 6) {
-      setError("Please enter a 6-digit OTP");
+      setError('Please enter a 6-digit OTP');
       return;
     }
-    // TODO: Add API call to verify OTP
-    console.log("Verifying OTP:", otp);
-    onSuccess();
+    setIsSubmitting(true);
+    try {
+      await onSubmitOtp(otp);
+    } catch (err) {
+      setError(err.message || 'Failed to verify OTP');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -47,8 +53,8 @@ const OtpForm = ({ email, onSuccess, onBack }) => {
           placeholder="OTP"
           className={`w-full px-5 py-3.25 pr-12.5 bg-bg-secondary rounded-lg outline-none text-[16px] text-text-primary font-medium placeholder:text-text-secondary placeholder:font-normal transition-all text-center tracking-[0.5em] ${
             error
-              ? "border-2 border-red-500"
-              : "border-2 border-transparent focus:border-brand-primary"
+              ? 'border-2 border-red-500'
+              : 'border-2 border-transparent focus:border-brand-primary'
           }`}
         />
         <BiSolidMessageRoundedDetail className="absolute right-5 top-1/2 -translate-y-1/2 text-[20px] text-text-secondary" />
@@ -59,7 +65,7 @@ const OtpForm = ({ email, onSuccess, onBack }) => {
         )}
       </div>
 
-      <Button type="submit" className="mt-2">
+      <Button type="submit" className="mt-2" disabled={isSubmitting}>
         Verify OTP
       </Button>
 
@@ -68,6 +74,7 @@ const OtpForm = ({ email, onSuccess, onBack }) => {
           type="button"
           onClick={onBack}
           className="flex items-center justify-center gap-2 w-full bg-transparent border-none cursor-pointer text-[14.5px] text-text-secondary hover:text-brand-primary transition-colors font-medium"
+          disabled={isSubmitting}
         >
           <BiArrowBack className="text-[18px]" />
           Back

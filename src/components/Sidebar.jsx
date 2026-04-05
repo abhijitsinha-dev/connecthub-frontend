@@ -1,4 +1,4 @@
-import { useNavigate, NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import {
   BiHomeAlt,
   BiSearch,
@@ -12,9 +12,12 @@ import {
 } from 'react-icons/bi';
 import { useTheme } from '../context/ThemeContext';
 import { useUIContext } from '../context/UIContext';
+import { authApi } from '../services/auth.service';
+import { useAuth } from '../context/AuthContext';
 
 const Sidebar = () => {
-  const navigate = useNavigate();
+  const { logout } = useAuth();
+  const { isLoading, setIsLoading } = useAuth();
   const {
     isSidebarCollapsed: isCollapsed,
     setIsSidebarCollapsed: setIsCollapsed,
@@ -22,9 +25,18 @@ const Sidebar = () => {
   } = useUIContext();
   const { theme, toggleTheme } = useTheme();
 
-  const handleLogout = () => {
-    // Optional: Add any logout logic here (e.g. clearing tokens)
-    navigate('/');
+  const handleLogout = async () => {
+    setIsLoading(true);
+
+    try {
+      await authApi.logout(); // Call your API to clear the HttpOnly cookie
+      logout();
+    } catch (error) {
+      console.error('Error during logout:', error);
+      logout();
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const toggleSidebar = () => {
@@ -79,7 +91,7 @@ const Sidebar = () => {
             to="/search"
             className={navLinkClasses}
             title={isCollapsed ? 'Search' : ''}
-            onClick={(e) => {
+            onClick={e => {
               e.preventDefault();
               setIsSearchOpen(true);
             }}
@@ -151,7 +163,9 @@ const Sidebar = () => {
         >
           <BiLogOut className="text-[24px] min-w-6" />
           {!isCollapsed && (
-            <span className="ml-4 whitespace-nowrap">Logout</span>
+            <span className="ml-4 whitespace-nowrap">
+              {isLoading ? 'Logging out...' : 'Logout'}
+            </span>
           )}
         </button>
       </div>
