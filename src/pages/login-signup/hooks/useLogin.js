@@ -7,7 +7,8 @@ import { useAuth } from '../../../context/AuthContext';
 export const useLogin = () => {
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [loginErrors, setLoginErrors] = useState({});
-  const { isLoading, setIsLoading, handleAuthSuccess } = useAuth();
+  const { handleAuthSuccess } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState('');
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const navigate = useNavigate();

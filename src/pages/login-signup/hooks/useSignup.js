@@ -11,7 +11,9 @@ export const useSignup = onSuccessCallback => {
     confirmPassword: '',
   });
   const [signupErrors, setSignupErrors] = useState({});
-  const { isLoading, setIsLoading, handleAuthSuccess, user } = useAuth();
+  const { handleAuthSuccess } = useAuth();
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState('');
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
 
@@ -70,7 +72,7 @@ export const useSignup = onSuccessCallback => {
           confirmPassword: signupData.confirmPassword,
         });
 
-        handleAuthSuccess(response?.data);
+        setUser(response?.data);
         onSuccessCallback();
       } catch (err) {
         const responseData = err.response?.data;

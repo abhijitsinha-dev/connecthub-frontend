@@ -6,34 +6,40 @@ import Home from '../pages/home/Home';
 import Create from '../pages/create/Create';
 import Messenger from '../pages/messenger/Messenger';
 import Profile from '../pages/profile/Profile';
+import Root from './Root';
 
 const router = createBrowserRouter([
   {
-    path: '/',
-    element: <LoginSignup />,
-  },
-  {
-    path: '/forgot-password',
-    element: <ForgotPassword />,
-  },
-  {
-    element: <Layout />,
+    element: <Root />,
     children: [
       {
-        path: '/home',
-        element: <Home />,
+        path: '/',
+        element: <LoginSignup />,
       },
       {
-        path: '/create',
-        element: <Create />,
+        path: '/forgot-password',
+        element: <ForgotPassword />,
       },
       {
-        path: '/messenger',
-        element: <Messenger />,
-      },
-      {
-        path: '/profile',
-        element: <Profile />,
+        element: <Layout />, // Your authenticated layout wrapper
+        children: [
+          {
+            path: '/home',
+            element: <Home />,
+          },
+          {
+            path: '/create',
+            element: <Create />,
+          },
+          {
+            path: '/messenger',
+            element: <Messenger />,
+          },
+          {
+            path: '/profile',
+            element: <Profile />,
+          },
+        ],
       },
     ],
   },

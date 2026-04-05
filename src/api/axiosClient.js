@@ -6,18 +6,18 @@ const axiosClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 10000, // 10 seconds timeout
+  timeout: 50000, // 10 seconds timeout
   // CRITICAL: This tells Axios to send cookies along with requests
   withCredentials: true,
 });
 
 // Response Interceptor: Global error handling
 axiosClient.interceptors.response.use(
-  (response) => {
+  response => {
     // Return just the data to keep components clean
     return response.data;
   },
-  (error) => {
+  error => {
     // Handle global errors (e.g., 401 Unauthorized)
     if (error.response) {
       if (error.response.status === 401) {
@@ -27,7 +27,7 @@ axiosClient.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  },
+  }
 );
 
 export default axiosClient;

@@ -1,11 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // Adjust the import path as needed
 import { authApi } from '../services/auth.service';
 
-export const useAuthCheck = () => {
+const useAuthCheck = () => {
   const navigate = useNavigate();
-  const { handleAuthSuccess, logout, setIsLoading, isLoggedIn } = useAuth();
+  const { handleAuthSuccess, logout, isLoggedIn } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const hasChecked = useRef(false);
 
   useEffect(() => {
@@ -40,4 +41,8 @@ export const useAuthCheck = () => {
 
     hasChecked.current = true;
   }, [navigate, handleAuthSuccess, logout, setIsLoading, isLoggedIn]);
+
+  return { isLoading };
 };
+
+export default useAuthCheck;

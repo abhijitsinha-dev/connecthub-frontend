@@ -14,10 +14,11 @@ import { useTheme } from '../context/ThemeContext';
 import { useUIContext } from '../context/UIContext';
 import { authApi } from '../services/auth.service';
 import { useAuth } from '../context/AuthContext';
+import { useState } from 'react';
 
 const Sidebar = () => {
   const { logout } = useAuth();
-  const { isLoading, setIsLoading } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   const {
     isSidebarCollapsed: isCollapsed,
     setIsSidebarCollapsed: setIsCollapsed,
