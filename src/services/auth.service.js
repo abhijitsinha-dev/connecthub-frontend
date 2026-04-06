@@ -1,8 +1,15 @@
 import axiosClient from '../api/axiosClient';
 
-export const authApi = {
+const authApi = {
   signup: async userData => {
     return await axiosClient.post('/auth/signup', userData);
+  },
+
+  signupVerifyEmail: async verificationData => {
+    return await axiosClient.post(
+      '/auth/signup/verify-email',
+      verificationData
+    );
   },
 
   login: async credentials => {
@@ -13,11 +20,24 @@ export const authApi = {
     return await axiosClient.post('/auth/logout');
   },
 
-  verifyEmail: async verificationData => {
-    return await axiosClient.post('/auth/verify-email', verificationData);
-  },
-
   me: async () => {
     return await axiosClient.get('/auth/me');
   },
+
+  forgotPassword: async email => {
+    return await axiosClient.post('/auth/forgot-password', { email });
+  },
+
+  forgotPasswordVerifyOtp: async verificationData => {
+    return await axiosClient.post(
+      '/auth/forgot-password/verify-otp',
+      verificationData
+    );
+  },
+
+  resetPassword: async resetData => {
+    return await axiosClient.post('/auth/reset-password', resetData);
+  },
 };
+
+export default authApi;

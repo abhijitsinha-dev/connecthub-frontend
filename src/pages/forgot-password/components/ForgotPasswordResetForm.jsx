@@ -1,19 +1,24 @@
-import { useState, useEffect } from "react";
-import { BiSolidLockAlt, BiShow, BiHide } from "react-icons/bi";
-import validator from "validator";
-import { useBlocker } from "react-router-dom";
-import Button from "../../../components/Button";
+import { useState, useEffect } from 'react';
+import { BiSolidLockAlt, BiShow, BiHide } from 'react-icons/bi';
+import { useBlocker } from 'react-router-dom';
+import Button from '../../../components/Button';
 
-const ForgotPasswordResetForm = ({ onSuccess }) => {
+const ForgotPasswordResetForm = ({
+  passwords,
+  errors,
+  onChange,
+  onSubmit,
+  isLoading,
+}) => {
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
-      currentLocation.pathname !== nextLocation.pathname,
+      currentLocation.pathname !== nextLocation.pathname
   );
 
   useEffect(() => {
-    if (blocker.state === "blocked") {
+    if (blocker.state === 'blocked') {
       const confirmLeave = window.confirm(
-        "Are you sure you want to go back? You will be redirected to the login form.",
+        'Are you sure you want to go back? You will be redirected to the login form.'
       );
       if (confirmLeave) {
         blocker.proceed();
@@ -24,63 +29,27 @@ const ForgotPasswordResetForm = ({ onSuccess }) => {
   }, [blocker]);
 
   useEffect(() => {
-    const handleBeforeUnload = (e) => {
+    const handleBeforeUnload = e => {
       e.preventDefault();
-      e.returnValue = "";
+      e.returnValue = '';
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, []);
-  const [passwords, setPasswords] = useState({
-    newPassword: "",
-    confirmPassword: "",
-  });
-  const [errors, setErrors] = useState({});
 
+  // UI Only States
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [isNewPasswordFocused, setIsNewPasswordFocused] = useState(false);
 
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isConfirmPasswordFocused, setIsConfirmPasswordFocused] = useState(false);
-
-  const handleChange = (e) => {
-    setPasswords({ ...passwords, [e.target.name]: e.target.value });
-    if (errors[e.target.name]) {
-      setErrors({ ...errors, [e.target.name]: "" });
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const newErrors = {};
-
-    if (!passwords.newPassword) {
-      newErrors.newPassword = "Password is required";
-    } else if (!validator.isStrongPassword(passwords.newPassword)) {
-      newErrors.newPassword = "Password is not strong enough";
-    }
-
-    if (!passwords.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (passwords.newPassword !== passwords.confirmPassword) {
-      newErrors.confirmPassword = "Passwords don't match";
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    // TODO: Add API call to reset password
-    console.log("Resetting password...");
-    onSuccess();
-  };
+  const [isConfirmPasswordFocused, setIsConfirmPasswordFocused] =
+    useState(false);
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="animate-fade-in">
+    <form onSubmit={onSubmit} noValidate className="animate-fade-in">
       <h1 className="text-[32px] mb-2 font-semibold text-text-primary">
         Reset Password
       </h1>
@@ -88,30 +57,36 @@ const ForgotPasswordResetForm = ({ onSuccess }) => {
         Create a new strong password for your account.
       </p>
 
+      {errors.server && (
+        <div className="bg-red-100 text-red-600 p-3 rounded-lg mb-4 text-sm font-medium">
+          {errors.server}
+        </div>
+      )}
+
       <div className="relative my-6">
         <input
-          type={showNewPassword ? "text" : "password"}
+          type={showNewPassword ? 'text' : 'password'}
           name="newPassword"
           value={passwords.newPassword}
-          onChange={handleChange}
+          onChange={onChange}
           onFocus={() => setIsNewPasswordFocused(true)}
           onBlur={() => {
             setIsNewPasswordFocused(false);
             setShowNewPassword(false);
           }}
-          onCopy={(e) => e.preventDefault()}
-          onPaste={(e) => e.preventDefault()}
+          onCopy={e => e.preventDefault()}
+          onPaste={e => e.preventDefault()}
           placeholder="New Password"
           className={`w-full px-5 py-3.25 pr-20 bg-bg-secondary rounded-lg outline-none text-[16px] text-text-primary font-medium placeholder:text-text-secondary placeholder:font-normal transition-all ${
             errors.newPassword
-              ? "border-2 border-red-500"
-              : "border-2 border-transparent focus:border-brand-primary"
+              ? 'border-2 border-red-500'
+              : 'border-2 border-transparent focus:border-brand-primary'
           }`}
         />
         {isNewPasswordFocused && (
-          <div 
+          <div
             className="absolute right-12 top-1/2 -translate-y-1/2 text-[20px] text-text-secondary cursor-pointer z-10"
-            onMouseDown={(e) => e.preventDefault()}
+            onMouseDown={e => e.preventDefault()}
             onClick={() => setShowNewPassword(!showNewPassword)}
           >
             {showNewPassword ? <BiShow /> : <BiHide />}
@@ -127,28 +102,28 @@ const ForgotPasswordResetForm = ({ onSuccess }) => {
 
       <div className="relative my-6">
         <input
-          type={showConfirmPassword ? "text" : "password"}
+          type={showConfirmPassword ? 'text' : 'password'}
           name="confirmPassword"
           value={passwords.confirmPassword}
-          onChange={handleChange}
+          onChange={onChange}
           onFocus={() => setIsConfirmPasswordFocused(true)}
           onBlur={() => {
             setIsConfirmPasswordFocused(false);
             setShowConfirmPassword(false);
           }}
-          onCopy={(e) => e.preventDefault()}
-          onPaste={(e) => e.preventDefault()}
+          onCopy={e => e.preventDefault()}
+          onPaste={e => e.preventDefault()}
           placeholder="Confirm Password"
           className={`w-full px-5 py-3.25 pr-20 bg-bg-secondary rounded-lg outline-none text-[16px] text-text-primary font-medium placeholder:text-text-secondary placeholder:font-normal transition-all ${
             errors.confirmPassword
-              ? "border-2 border-red-500"
-              : "border-2 border-transparent focus:border-brand-primary"
+              ? 'border-2 border-red-500'
+              : 'border-2 border-transparent focus:border-brand-primary'
           }`}
         />
         {isConfirmPasswordFocused && (
-          <div 
+          <div
             className="absolute right-12 top-1/2 -translate-y-1/2 text-[20px] text-text-secondary cursor-pointer z-10"
-            onMouseDown={(e) => e.preventDefault()}
+            onMouseDown={e => e.preventDefault()}
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
           >
             {showConfirmPassword ? <BiShow /> : <BiHide />}
@@ -162,8 +137,8 @@ const ForgotPasswordResetForm = ({ onSuccess }) => {
         )}
       </div>
 
-      <Button type="submit" className="mt-2">
-        Change Password
+      <Button type="submit" className="mt-2" disabled={isLoading}>
+        {isLoading ? 'Changing...' : 'Change Password'}
       </Button>
     </form>
   );

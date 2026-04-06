@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // Adjust the import path as needed
-import { authApi } from '../services/auth.service';
+import authApi from '../services/auth.service';
 
 const useAuthCheck = () => {
   const navigate = useNavigate();

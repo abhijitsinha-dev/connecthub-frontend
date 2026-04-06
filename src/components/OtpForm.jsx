@@ -7,7 +7,7 @@ const OtpForm = ({ email, onSubmitOtp, onBack }) => {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const value = e.target.value;
     // only allow numbers and restrict to 6 digits max
     if (value === '' || (/^[0-9\b]+$/.test(value) && value.length <= 6)) {
@@ -16,7 +16,7 @@ const OtpForm = ({ email, onSubmitOtp, onBack }) => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
     if (otp.length !== 6) {
       setError('Please enter a 6-digit OTP');
@@ -66,7 +66,7 @@ const OtpForm = ({ email, onSubmitOtp, onBack }) => {
       </div>
 
       <Button type="submit" className="mt-2" disabled={isSubmitting}>
-        Verify OTP
+        {isSubmitting ? 'Verifying...' : 'Verify OTP'}
       </Button>
 
       <div className="mt-6 text-text-primary">

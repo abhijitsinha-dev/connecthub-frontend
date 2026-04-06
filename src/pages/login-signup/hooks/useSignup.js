@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import validator from 'validator';
 import { useAuth } from '../../../context/AuthContext';
-import { authApi } from '../../../services/auth.service';
+import authApi from '../../../services/auth.service';
 
 export const useSignup = onSuccessCallback => {
   const [signupData, setSignupData] = useState({
@@ -105,7 +105,7 @@ export const useSignup = onSuccessCallback => {
     setIsLoading(true);
     try {
       // Pull the userId directly from the context we populated during signup!
-      const response = await authApi.verifyEmail({
+      const response = await authApi.signupVerifyEmail({
         id: user?.id,
         otp,
       });

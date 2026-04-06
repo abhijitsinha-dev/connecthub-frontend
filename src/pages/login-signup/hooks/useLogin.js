@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import validator from 'validator';
-import { authApi } from '../../../services/auth.service';
+import authApi from '../../../services/auth.service';
 import { useAuth } from '../../../context/AuthContext';
 
 export const useLogin = () => {

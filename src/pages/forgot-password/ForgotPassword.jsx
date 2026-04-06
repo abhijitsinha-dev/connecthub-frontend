@@ -1,46 +1,26 @@
-import { useState } from "react";
-import validator from "validator";
-import { useNavigate } from "react-router-dom";
-import ForgotPasswordForm from "./components/ForgotPasswordForm";
-import OtpForm from "../../components/OtpForm";
-import ForgotPasswordResetForm from "./components/ForgotPasswordResetForm";
-import ForgotPasswordSuccess from "./components/ForgotPasswordSuccess";
-import ThemeToggleButton from "../../components/ThemeToggleButton";
+import ForgotPasswordForm from './components/ForgotPasswordForm';
+import OtpForm from '../../components/OtpForm';
+import ForgotPasswordResetForm from './components/ForgotPasswordResetForm';
+import ForgotPasswordSuccess from './components/ForgotPasswordSuccess';
+import ThemeToggleButton from '../../components/ThemeToggleButton';
+import useForgotPasswordFlow from './hooks/useForgotPasswordFlow';
 
 const ForgotPassword = () => {
-  const navigate = useNavigate();
-
-  const handleBackToLogin = () => {
-    navigate("/");
-  };
-
-  const [step, setStep] = useState(1);
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
-
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-    if (error) setError("");
-  };
-
-  const handleEmailSubmit = (e) => {
-    e.preventDefault();
-
-    if (!email.trim()) {
-      setError("Email is required");
-      return;
-    }
-
-    if (!validator.isEmail(email)) {
-      setError("Please enter a valid email address");
-      return;
-    }
-
-    setError("");
-    // TODO: Add your actual API call here to send OTP
-    console.log("OTP sent to:", email);
-    setStep(2);
-  };
+  const {
+    step,
+    email,
+    emailError,
+    passwords,
+    passwordErrors,
+    isLoading,
+    handleEmailChange,
+    handleEmailSubmit,
+    handleOtpSubmit,
+    handlePasswordsChange,
+    handlePasswordSubmit,
+    handleBackToLogin,
+    goBackToEmailStep,
+  } = useForgotPasswordFlow();
 
   return (
     <div className="relative flex justify-center items-center min-h-screen bg-bg-secondary font-sans transition-colors duration-300">
@@ -49,20 +29,32 @@ const ForgotPassword = () => {
         {step === 1 && (
           <ForgotPasswordForm
             email={email}
-            error={error}
+            error={emailError}
+            isLoading={isLoading}
             onChange={handleEmailChange}
             onSubmit={handleEmailSubmit}
             onBackToLogin={handleBackToLogin}
           />
         )}
+
         {step === 2 && (
           <OtpForm
             email={email}
-            onSuccess={() => setStep(3)}
-            onBack={() => setStep(1)}
+            onSubmitOtp={handleOtpSubmit}
+            onBack={goBackToEmailStep}
           />
         )}
-        {step === 3 && <ForgotPasswordResetForm onSuccess={() => setStep(4)} />}
+
+        {step === 3 && (
+          <ForgotPasswordResetForm
+            passwords={passwords}
+            errors={passwordErrors}
+            onChange={handlePasswordsChange}
+            onSubmit={handlePasswordSubmit}
+            isLoading={isLoading}
+          />
+        )}
+
         {step === 4 && (
           <ForgotPasswordSuccess onBackToLogin={handleBackToLogin} />
         )}
