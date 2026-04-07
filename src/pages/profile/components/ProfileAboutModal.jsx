@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import {
   BiMap,
   BiEnvelope,
@@ -10,9 +11,15 @@ import {
 const ProfileAboutModal = ({ isOpen, userData, onClose }) => {
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-fade-in backdrop-blur-sm">
-      <div className="bg-bg-primary rounded-2xl shadow-xl border border-border-primary w-full max-w-3xl p-6 sm:p-8 relative max-h-[85vh] overflow-y-auto">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-fade-in backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="bg-bg-primary rounded-2xl shadow-xl border border-border-primary w-full max-w-3xl p-6 sm:p-8 relative max-h-[85vh] overflow-y-auto"
+        onClick={e => e.stopPropagation()}
+      >
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 text-text-secondary hover:text-text-primary hover:bg-bg-secondary rounded-full transition-all"
@@ -84,7 +91,8 @@ const ProfileAboutModal = ({ isOpen, userData, onClose }) => {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

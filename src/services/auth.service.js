@@ -38,6 +38,14 @@ const authApi = {
   resetPassword: async resetData => {
     return await axiosClient.post('/auth/reset-password', resetData);
   },
+
+  getCloudinarySignature: async () => {
+    return await axiosClient.get('/media/get-signature');
+  },
+
+  updateLoggedInUser: async userData => {
+    return await axiosClient.patch(userData);
+  },
 };
 
 export default authApi;

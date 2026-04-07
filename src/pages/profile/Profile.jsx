@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProfileTopSection from './components/ProfileTopSection';
 import ProfilePostsSection from './components/ProfilePostsSection';
 import ProfileAboutModal from './components/ProfileAboutModal';
+import { useAuth } from '../../context/AuthContext';
+import authApi from '../../services/auth.service';
+import mediaApi from '../../services/media.service';
+import userApi from '../../services/user.service';
 
 const DEFAULT_PROFILE_PICTURE =
-  'https://ui-avatars.com/api/?name=User&background=e5e7eb&color=64748b&size=300';
+  'https://res.cloudinary.com/dl8c40ppg/image/upload/v1775503611/zbj6efjrtmly4wfqe0tg.jpg';
 const DEFAULT_COVER_PHOTO =
   'https://placehold.co/2000x600/e2e8f0/64748b?text=Cover+Photo';
 
@@ -49,78 +53,173 @@ const MOCK_POSTS = [
   },
 ];
 
-const MOCK_USER = {
-  username: 'alex_dev',
-  fullName: 'Alex Developer',
-  email: 'alex.developer@example.com',
-  phoneNumber: '+1 (555) 123-4567',
-  bio: 'Software engineer and tech enthusiast. Building things for the web and sharing my journey. Coffee addict. ☕🚀',
-  profilePicture: 'https://i.pravatar.cc/300?img=68',
-  coverPhoto:
-    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=2000',
-  gender: 'Non-binary',
-  dateOfBirth: '1994-10-24',
-  address: '123 Tech Lane, San Francisco, CA, 94105',
-  followersCount: 1420,
-  followingCount: 385,
-  postsCount: 42,
-};
-
 const Profile = () => {
-  const [userData, setUserData] = useState(MOCK_USER);
+  const { handleAuthSuccess } = useAuth();
+
+  const [userData, setUserData] = useState(null);
+  const [isFetching, setIsFetching] = useState(true);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
 
-  const handleImageChange = (e, field) => {
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setIsFetching(true);
+        const response = await authApi.me();
+        const fetchedUser = response.data.user;
+
+        handleAuthSuccess(fetchedUser);
+
+        setUserData({
+          id: fetchedUser.id,
+          username: fetchedUser.username,
+          fullName: fetchedUser.fullName || fetchedUser.username,
+          email: fetchedUser.email,
+          phoneNumber: 'Not provided',
+          bio: 'No bio available.',
+          profilePicture: fetchedUser.avatar?.url || '',
+          coverPhoto: fetchedUser.coverImage?.url || '',
+          gender: 'Not specified',
+          dateOfBirth: fetchedUser.createdAt,
+          address: 'Not provided',
+          followersCount: 0,
+          followingCount: 0,
+          postsCount: 0,
+        });
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+
+    fetchProfile();
+  }, [handleAuthSuccess]);
+
+  const handleImageChange = async (e, field) => {
     const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setUserData((prev) => ({ ...prev, [field]: reader.result }));
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setUserData(prev => ({ ...prev, [field]: reader.result }));
+    };
+    reader.readAsDataURL(file);
+
+    try {
+      setIsUploadingImage(true);
+
+      const signatureResponse = await mediaApi.getCloudinarySignature();
+      const { timestamp, signature } = signatureResponse.data;
+
+      const uploadData = await mediaApi.uploadToCloudinary(
+        file,
+        timestamp,
+        signature
+      );
+
+      if (!uploadData.secure_url) {
+        throw new Error('Failed to upload image to Cloudinary');
+      }
+
+      let updatePayload = {};
+      if (field === 'profilePicture') {
+        updatePayload = {
+          avatar: {
+            url: uploadData.secure_url,
+            publicId: uploadData.public_id,
+          },
+        };
+      } else if (field === 'coverPhoto') {
+        updatePayload = {
+          coverImage: {
+            url: uploadData.secure_url,
+            publicId: uploadData.public_id,
+          },
+        };
+      }
+
+      await userApi.updateLoggedInUser(updatePayload);
+      setUserData(prev => ({ ...prev, [field]: uploadData.secure_url }));
+    } catch (error) {
+      console.error('Error during image upload workflow:', error);
+      alert('Failed to save the image. Please try again.');
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
-  const handleRemoveProfilePicture = () => {
-    setUserData((prev) => ({
-      ...prev,
-      profilePicture: DEFAULT_PROFILE_PICTURE,
-    }));
+  const handleRemoveProfilePicture = async () => {
+    try {
+      setIsUploadingImage(true);
+
+      // Update backend
+      await userApi.updateLoggedInUser({ avatar: null });
+
+      // Update local state to fallback image
+      setUserData(prev => ({
+        ...prev,
+        profilePicture: DEFAULT_PROFILE_PICTURE,
+      }));
+    } catch (error) {
+      console.error('Error removing profile picture:', error);
+      alert('Failed to remove the profile picture. Please try again.');
+    } finally {
+      setIsUploadingImage(false);
+    }
   };
 
-  const handleRemoveCoverPhoto = () => {
-    setUserData((prev) => ({
-      ...prev,
-      coverPhoto: DEFAULT_COVER_PHOTO,
-    }));
+  const handleRemoveCoverPhoto = async () => {
+    try {
+      setIsUploadingImage(true);
+
+      // Update backend
+      await userApi.updateLoggedInUser({ coverImage: null });
+
+      // Update local state to fallback image
+      setUserData(prev => ({
+        ...prev,
+        coverPhoto: DEFAULT_COVER_PHOTO,
+      }));
+    } catch (error) {
+      console.error('Error removing cover photo:', error);
+      alert('Failed to remove the cover photo. Please try again.');
+    } finally {
+      setIsUploadingImage(false);
+    }
   };
 
-  const resolvedProfilePicture =
-    userData.profilePicture || DEFAULT_PROFILE_PICTURE;
-  const resolvedCoverPhoto = userData.coverPhoto || DEFAULT_COVER_PHOTO;
+  if (isFetching || !userData) {
+    return (
+      <div className="flex justify-center items-center h-64 w-full">
+        <div className="w-10 h-10 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   const resolvedUserData = {
     ...userData,
-    profilePicture: resolvedProfilePicture,
-    coverPhoto: resolvedCoverPhoto,
+    profilePicture: userData.profilePicture || DEFAULT_PROFILE_PICTURE,
+    coverPhoto: userData.coverPhoto || DEFAULT_COVER_PHOTO,
   };
-
-  const hasCustomProfilePicture =
-    Boolean(userData.profilePicture) &&
-    userData.profilePicture !== DEFAULT_PROFILE_PICTURE;
-  const hasCustomCoverPhoto =
-    Boolean(userData.coverPhoto) && userData.coverPhoto !== DEFAULT_COVER_PHOTO;
 
   return (
     <div className="max-w-4xl mx-auto w-full pb-12 animate-fade-in relative">
+      {isUploadingImage && (
+        <div className="absolute top-4 right-4 bg-brand-primary text-white px-4 py-2 rounded-full text-sm font-medium z-50 shadow-lg animate-pulse">
+          Saving changes...
+        </div>
+      )}
+
+      {/* Reduced Props implementation */}
       <ProfileTopSection
         userData={resolvedUserData}
-        onImageChange={handleImageChange}
-        onRemoveProfilePicture={handleRemoveProfilePicture}
-        onRemoveCoverPhoto={handleRemoveCoverPhoto}
-        hasCustomProfilePicture={hasCustomProfilePicture}
-        hasCustomCoverPhoto={hasCustomCoverPhoto}
+        imageActions={{
+          onChange: handleImageChange,
+          onRemoveProfilePicture: handleRemoveProfilePicture,
+          onRemoveCoverPhoto: handleRemoveCoverPhoto,
+        }}
         onOpenAbout={() => setIsAboutOpen(true)}
       />
 

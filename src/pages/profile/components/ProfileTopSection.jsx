@@ -1,90 +1,51 @@
-import { useRef, useState } from 'react';
 import { BiEdit, BiCamera, BiInfoCircle } from 'react-icons/bi';
 import ProfileImageActionModal from './ProfileImageActionModal';
+import useImagePicker from '../hooks/useImagePicker';
 
-const ProfileTopSection = ({
-  userData,
-  onImageChange,
-  onOpenAbout,
-  onRemoveProfilePicture,
-  onRemoveCoverPhoto,
-  hasCustomProfilePicture,
-  hasCustomCoverPhoto,
-}) => {
-  const fileInputRef = useRef(null);
-  const coverInputRef = useRef(null);
-  const [isAvatarMenuOpen, setIsAvatarMenuOpen] = useState(false);
-  const [isCoverMenuOpen, setIsCoverMenuOpen] = useState(false);
+// Extracted constants for local state derivation
+const DEFAULT_PROFILE_PICTURE =
+  'https://res.cloudinary.com/dl8c40ppg/image/upload/v1775503611/zbj6efjrtmly4wfqe0tg.jpg';
+const DEFAULT_COVER_PHOTO =
+  'https://placehold.co/2000x600/e2e8f0/64748b?text=Cover+Photo';
 
-  const closeAllMenus = () => {
-    setIsAvatarMenuOpen(false);
-    setIsCoverMenuOpen(false);
-  };
+const ProfileTopSection = ({ userData, imageActions, onOpenAbout }) => {
+  // 2. Derive boolean props locally to reduce props passed from parent
+  const hasCustomProfilePicture =
+    Boolean(userData.profilePicture) &&
+    userData.profilePicture !== DEFAULT_PROFILE_PICTURE;
 
-  const openProfilePicturePicker = () => {
-    closeAllMenus();
-    fileInputRef.current?.click();
-  };
+  const hasCustomCoverPhoto =
+    Boolean(userData.coverPhoto) && userData.coverPhoto !== DEFAULT_COVER_PHOTO;
 
-  const openCoverPicker = () => {
-    closeAllMenus();
-    coverInputRef.current?.click();
-  };
+  // 3. Call the hook for both Avatar and Cover Photo
+  const avatarPicker = useImagePicker(
+    hasCustomProfilePicture,
+    imageActions.onChange,
+    imageActions.onRemoveProfilePicture,
+    'profilePicture'
+  );
 
-  const handleProfilePictureClick = () => {
-    if (hasCustomProfilePicture) {
-      setIsAvatarMenuOpen(true);
-      setIsCoverMenuOpen(false);
-      return;
-    }
-
-    openProfilePicturePicker();
-  };
-
-  const handleCoverClick = () => {
-    if (hasCustomCoverPhoto) {
-      setIsCoverMenuOpen(true);
-      setIsAvatarMenuOpen(false);
-      return;
-    }
-
-    openCoverPicker();
-  };
-
-  const handleProfilePictureChange = (e) => {
-    onImageChange(e, 'profilePicture');
-    closeAllMenus();
-  };
-
-  const handleCoverChange = (e) => {
-    onImageChange(e, 'coverPhoto');
-    closeAllMenus();
-  };
-
-  const handleRemoveProfilePicture = () => {
-    onRemoveProfilePicture();
-    closeAllMenus();
-  };
-
-  const handleRemoveCover = () => {
-    onRemoveCoverPhoto();
-    closeAllMenus();
-  };
+  const coverPicker = useImagePicker(
+    hasCustomCoverPhoto,
+    imageActions.onChange,
+    imageActions.onRemoveCoverPhoto,
+    'coverPhoto'
+  );
 
   return (
     <div className="flex flex-col">
       {/* Cover Photo */}
       <div className="relative h-48 sm:h-64 w-full rounded-b-3xl overflow-hidden shadow-sm group">
         <input
-          ref={coverInputRef}
+          ref={coverPicker.inputRef}
           type="file"
           accept="image/*"
           className="hidden"
-          onChange={handleCoverChange}
+          onChange={coverPicker.handleChange}
         />
         <button
           type="button"
-          onClick={handleCoverClick}
+          onClick={coverPicker.handleClick}
           className="cursor-pointer block w-full h-full relative"
           aria-label="Update cover picture"
         >
@@ -108,15 +69,15 @@ const ProfileTopSection = ({
             {/* Avatar */}
             <div className="relative group">
               <input
-                ref={fileInputRef}
+                ref={avatarPicker.inputRef}
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={handleProfilePictureChange}
+                onChange={avatarPicker.handleChange}
               />
               <button
                 type="button"
-                onClick={handleProfilePictureClick}
+                onClick={avatarPicker.handleClick}
                 className="cursor-pointer block"
                 aria-label="Update profile picture"
               >
@@ -200,20 +161,21 @@ const ProfileTopSection = ({
         </div>
       </div>
 
+      {/* Render Modals using Hook state */}
       <ProfileImageActionModal
-        isOpen={isAvatarMenuOpen}
-        onClose={closeAllMenus}
-        onChange={openProfilePicturePicker}
-        onRemove={handleRemoveProfilePicture}
+        isOpen={avatarPicker.isMenuOpen}
+        onClose={avatarPicker.closeMenu}
+        onChange={avatarPicker.openPicker}
+        onRemove={avatarPicker.handleRemove}
         changeLabel="Change Profile Picture"
         removeLabel="Remove Profile Picture"
       />
 
       <ProfileImageActionModal
-        isOpen={isCoverMenuOpen}
-        onClose={closeAllMenus}
-        onChange={openCoverPicker}
-        onRemove={handleRemoveCover}
+        isOpen={coverPicker.isMenuOpen}
+        onClose={coverPicker.closeMenu}
+        onChange={coverPicker.openPicker}
+        onRemove={coverPicker.handleRemove}
         changeLabel="Change Cover Picture"
         removeLabel="Remove Cover Picture"
       />
