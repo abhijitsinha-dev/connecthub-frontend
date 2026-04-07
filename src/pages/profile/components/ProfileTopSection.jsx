@@ -8,7 +8,12 @@ const DEFAULT_PROFILE_PICTURE =
 const DEFAULT_COVER_PHOTO =
   'https://placehold.co/2000x600/e2e8f0/64748b?text=Cover+Photo';
 
-const ProfileTopSection = ({ userData, imageActions, onOpenAbout }) => {
+const ProfileTopSection = ({
+  userData,
+  imageActions,
+  onOpenAbout,
+  onOpenEdit,
+}) => {
   // 2. Derive boolean props locally to reduce props passed from parent
   const hasCustomProfilePicture =
     Boolean(userData.profilePicture) &&
@@ -116,8 +121,8 @@ const ProfileTopSection = ({ userData, imageActions, onOpenAbout }) => {
               About
             </button>
             <button
-              className="flex items-center gap-2 px-5 py-2.5 bg-bg-secondary text-text-primary font-medium rounded-full border border-border-primary opacity-50 cursor-not-allowed"
-              title="Edit Profile functionality will be on a separate page"
+              onClick={onOpenEdit} // <-- Add onClick handler
+              className="flex items-center gap-2 px-5 py-2.5 bg-bg-secondary text-text-primary font-medium hover:bg-border-primary rounded-full border border-border-primary transition-colors" // <-- Update styling to make it look active
             >
               <BiEdit className="text-lg" />
               Edit Profile

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ProfileTopSection from './components/ProfileTopSection';
 import ProfilePostsSection from './components/ProfilePostsSection';
 import ProfileAboutModal from './components/ProfileAboutModal';
+import ProfileEditModal from './components/ProfileEditModal';
 import { useAuth } from '../../context/AuthContext';
 import authApi from '../../services/auth.service';
 import mediaApi from '../../services/media.service';
@@ -60,6 +61,7 @@ const Profile = () => {
   const [isFetching, setIsFetching] = useState(true);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isAboutOpen, setIsAboutOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
 
   useEffect(() => {
@@ -76,13 +78,13 @@ const Profile = () => {
           username: fetchedUser.username,
           fullName: fetchedUser.fullName || fetchedUser.username,
           email: fetchedUser.email,
-          phoneNumber: 'Not provided',
-          bio: 'No bio available.',
+          phoneNumber: fetchedUser.phoneNumber || 'Not provided',
+          bio: fetchedUser.bio || 'Not provided',
           profilePicture: fetchedUser.avatar?.url || '',
           coverPhoto: fetchedUser.coverImage?.url || '',
-          gender: 'Not specified',
-          dateOfBirth: fetchedUser.createdAt,
-          address: 'Not provided',
+          gender: fetchedUser.gender || 'Not specified',
+          dateOfBirth: fetchedUser.dateOfBirth || null,
+          address: fetchedUser.address || 'Not provided',
           followersCount: 0,
           followingCount: 0,
           postsCount: 0,
@@ -204,6 +206,19 @@ const Profile = () => {
     coverPhoto: userData.coverPhoto || DEFAULT_COVER_PHOTO,
   };
 
+  const handleProfileUpdateSuccess = updatedFields => {
+    setUserData(prev => ({
+      ...prev,
+      username: updatedFields.username,
+      fullName: updatedFields.fullName,
+      bio: updatedFields.bio || 'No bio available.',
+      phoneNumber: updatedFields.phoneNumber || 'Not provided',
+      gender: updatedFields.gender || 'Not specified',
+      dateOfBirth: updatedFields.dateOfBirth || prev.dateOfBirth,
+      address: updatedFields.address || 'Not provided',
+    }));
+  };
+
   return (
     <div className="max-w-4xl mx-auto w-full pb-12 animate-fade-in relative">
       {isUploadingImage && (
@@ -221,6 +236,7 @@ const Profile = () => {
           onRemoveCoverPhoto: handleRemoveCoverPhoto,
         }}
         onOpenAbout={() => setIsAboutOpen(true)}
+        onOpenEdit={() => setIsEditOpen(true)}
       />
 
       <ProfilePostsSection
@@ -234,6 +250,13 @@ const Profile = () => {
         isOpen={isAboutOpen}
         userData={resolvedUserData}
         onClose={() => setIsAboutOpen(false)}
+      />
+
+      <ProfileEditModal
+        isOpen={isEditOpen}
+        userData={resolvedUserData}
+        onClose={() => setIsEditOpen(false)}
+        onUpdateSuccess={handleProfileUpdateSuccess}
       />
     </div>
   );
