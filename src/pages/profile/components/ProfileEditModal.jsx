@@ -127,8 +127,8 @@ const ProfileEditModal = ({ isOpen, userData, onClose, onUpdateSuccess }) => {
       fullNameTrimmed.length > 100
     ) {
       errors.fullName = 'Full name must be between 3 and 100 characters.';
-    } else if (!validator.isAlpha(fullNameTrimmed, 'en-US', { ignore: ' ' })) {
-      errors.fullName = 'Full name must contain only letters';
+    } else if (!/^[a-zA-Z\s]+$/.test(fullNameTrimmed)) {
+      errors.fullName = 'Full name must contain only letters and spaces.';
     }
 
     // Phone number validation
