@@ -7,7 +7,7 @@ import {
 } from 'react-icons/bi';
 
 const ProfilePostsSection = ({ posts, userData, activeTab, onTabChange }) => {
-  const filteredPosts = posts.filter((post) => {
+  const filteredPosts = posts.filter(post => {
     if (activeTab === 'all') return true;
     if (activeTab === 'photos') return post.type === 'photo';
     if (activeTab === 'videos') return post.type === 'video';
@@ -54,7 +54,7 @@ const ProfilePostsSection = ({ posts, userData, activeTab, onTabChange }) => {
       <div
         className={`grid gap-6 ${activeTab === 'all' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-2'}`}
       >
-        {filteredPosts.map((post) => (
+        {filteredPosts.map(post => (
           <div
             key={post.id}
             className="bg-bg-primary rounded-2xl shadow-sm border border-border-primary p-5 flex flex-col hover:shadow-md transition-shadow"
@@ -67,7 +67,7 @@ const ProfilePostsSection = ({ posts, userData, activeTab, onTabChange }) => {
               />
               <div>
                 <p className="font-semibold text-text-primary text-sm">
-                  {userData.fullName}
+                  {userData.fullName || userData.username}
                 </p>
                 <p className="text-text-secondary text-xs">{post.timestamp}</p>
               </div>

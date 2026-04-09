@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // Adjust the import path as needed
 import authApi from '../services/auth.service';
 
 const useAuthCheck = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { handleAuthSuccess, logout, token } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const hasChecked = useRef(false);
 
   useEffect(() => {
@@ -41,7 +42,14 @@ const useAuthCheck = () => {
     verifySession();
 
     hasChecked.current = true;
-  }, [navigate, handleAuthSuccess, logout, setIsLoading, token]);
+  }, [
+    navigate,
+    handleAuthSuccess,
+    logout,
+    setIsLoading,
+    token,
+    location.pathname,
+  ]);
 
   return { isLoading };
 };

@@ -14,7 +14,7 @@ const ProfileTopSection = ({
   onOpenAbout,
   onOpenEdit,
 }) => {
-  // 2. Derive boolean props locally to reduce props passed from parent
+  // Derive boolean props locally to reduce props passed from parent
   const hasCustomProfilePicture =
     Boolean(userData.profilePicture) &&
     userData.profilePicture !== DEFAULT_PROFILE_PICTURE;
@@ -22,7 +22,7 @@ const ProfileTopSection = ({
   const hasCustomCoverPhoto =
     Boolean(userData.coverPhoto) && userData.coverPhoto !== DEFAULT_COVER_PHOTO;
 
-  // 3. Call the hook for both Avatar and Cover Photo
+  // Call the hook for both Avatar and Cover Photo
   const avatarPicker = useImagePicker(
     hasCustomProfilePicture,
     imageActions.onChange,
@@ -61,18 +61,18 @@ const ProfileTopSection = ({
           />
           <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-200 pointer-events-none"></div>
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <BiCamera className="text-white text-6xl opacity-40 group-hover:opacity-70 transition-opacity duration-200 drop-shadow-md" />
+            <BiCamera className="text-white text-4xl sm:text-6xl opacity-40 group-hover:opacity-70 transition-opacity duration-200 drop-shadow-md" />
           </div>
           <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/20 pointer-events-none"></div>
         </button>
       </div>
 
       {/* Profile Header (Avatar, Name, Actions) */}
-      <div className="px-6 sm:px-12 -mt-10 sm:-mt-12 relative z-10">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-4 min-w-0">
+      <div className="px-4 sm:px-12 relative z-10">
+        <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-center sm:items-end gap-3 sm:gap-6 min-w-0 text-center sm:text-left w-full sm:w-auto">
             {/* Avatar */}
-            <div className="relative group">
+            <div className="relative group -mt-16 sm:-mt-20 shrink-0">
               <input
                 ref={avatarPicker.inputRef}
                 type="file"
@@ -86,7 +86,7 @@ const ProfileTopSection = ({
                 className="cursor-pointer block"
                 aria-label="Update profile picture"
               >
-                <div className="w-40 h-40 rounded-full border-4 border-bg-primary overflow-hidden shadow-lg bg-bg-secondary relative">
+                <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-bg-primary overflow-hidden shadow-lg bg-bg-secondary relative">
                   <img
                     src={userData.profilePicture}
                     alt={userData.fullName}
@@ -94,35 +94,35 @@ const ProfileTopSection = ({
                   />
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-200 pointer-events-none"></div>
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <BiCamera className="text-white text-5xl opacity-40 group-hover:opacity-70 transition-opacity duration-200 drop-shadow-md" />
+                    <BiCamera className="text-white text-4xl sm:text-5xl opacity-40 group-hover:opacity-70 transition-opacity duration-200 drop-shadow-md" />
                   </div>
                 </div>
               </button>
             </div>
 
             {/* Basic Info */}
-            <div className="min-w-0 pt-5 sm:pt-6">
-              <h1 className="text-3xl font-bold text-text-primary">
-                {userData.fullName}
+            <div className="min-w-0 pt-2 sm:pt-0 sm:pb-3 w-full">
+              <h1 className="text-2xl sm:text-3xl font-bold text-text-primary truncate max-w-full">
+                {userData.fullName || userData.username}
               </h1>
-              <p className="text-brand-primary font-medium">
+              <p className="text-brand-primary font-medium text-sm sm:text-base">
                 @{userData.username}
               </p>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center mt-5 sm:mt-6 mb-2 gap-3 shrink-0">
+          <div className="flex items-center justify-center sm:justify-end w-full sm:w-auto mt-2 sm:mt-0 sm:mb-3 gap-3 shrink-0">
             <button
               onClick={onOpenAbout}
-              className="flex items-center gap-2 px-5 py-2.5 bg-brand-primary hover:bg-brand-secondary text-white font-medium rounded-full transition-all shadow-md hover:shadow-lg"
+              className="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 text-sm sm:text-base bg-brand-primary hover:bg-brand-secondary text-white font-medium rounded-full transition-all shadow-md hover:shadow-lg"
             >
               <BiInfoCircle className="text-lg" />
               About
             </button>
             <button
-              onClick={onOpenEdit} // <-- Add onClick handler
-              className="flex items-center gap-2 px-5 py-2.5 bg-bg-secondary text-text-primary font-medium hover:bg-border-primary rounded-full border border-border-primary transition-colors" // <-- Update styling to make it look active
+              onClick={onOpenEdit}
+              className="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 text-sm sm:text-base bg-bg-secondary text-text-primary font-medium hover:bg-border-primary rounded-full border border-border-primary transition-colors"
             >
               <BiEdit className="text-lg" />
               Edit Profile
@@ -131,35 +131,35 @@ const ProfileTopSection = ({
         </div>
 
         {/* Bio */}
-        <div className="mt-8 mx-auto px-2 w-full">
-          <p className="text-text-primary text-lg leading-relaxed mix-blend-repl">
+        <div className="mt-6 sm:mt-8 mx-auto px-2 w-full text-center sm:text-left">
+          <p className="text-text-primary text-base sm:text-lg leading-relaxed mix-blend-repl">
             {userData.bio}
           </p>
         </div>
 
         {/* Stats */}
-        <div className="flex gap-8 justify-center mt-6 pb-2">
+        <div className="flex gap-6 sm:gap-8 justify-center mt-6 sm:mt-8 pb-4">
           <div className="text-center">
-            <span className="block text-2xl font-bold text-text-primary">
+            <span className="block text-xl sm:text-2xl font-bold text-text-primary">
               {userData.postsCount.toLocaleString()}
             </span>
-            <span className="text-sm text-text-secondary uppercase tracking-wider font-semibold">
+            <span className="text-xs sm:text-sm text-text-secondary uppercase tracking-wider font-semibold">
               Posts
             </span>
           </div>
           <div className="text-center">
-            <span className="block text-2xl font-bold text-text-primary">
+            <span className="block text-xl sm:text-2xl font-bold text-text-primary">
               {userData.followersCount.toLocaleString()}
             </span>
-            <span className="text-sm text-text-secondary uppercase tracking-wider font-semibold">
+            <span className="text-xs sm:text-sm text-text-secondary uppercase tracking-wider font-semibold">
               Followers
             </span>
           </div>
           <div className="text-center">
-            <span className="block text-2xl font-bold text-text-primary">
+            <span className="block text-xl sm:text-2xl font-bold text-text-primary">
               {userData.followingCount.toLocaleString()}
             </span>
-            <span className="text-sm text-text-secondary uppercase tracking-wider font-semibold">
+            <span className="text-xs sm:text-sm text-text-secondary uppercase tracking-wider font-semibold">
               Following
             </span>
           </div>

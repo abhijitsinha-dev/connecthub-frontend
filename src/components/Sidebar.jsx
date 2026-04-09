@@ -16,7 +16,7 @@ import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
 
 const Sidebar = () => {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const {
     isSidebarCollapsed: isCollapsed,
@@ -51,7 +51,8 @@ const Sidebar = () => {
 
   return (
     <aside
-      className={`${isCollapsed ? 'w-20' : 'w-64'} fixed top-0 left-0 h-dvh bg-bg-primary shadow-[4px_0_24px_rgba(0,0,0,0.08)] flex flex-col justify-between transition-all duration-300 ease-in-out z-50`}
+      // Added "hidden md:flex" right here to hide it on mobile
+      className={`hidden md:flex ${isCollapsed ? 'w-20' : 'w-64'} fixed top-0 left-0 h-dvh bg-bg-primary shadow-[4px_0_24px_rgba(0,0,0,0.08)] flex-col justify-between transition-all duration-300 ease-in-out z-50`}
     >
       <div className="p-4 overflow-y-auto overflow-x-hidden no-scrollbar">
         {/* Header / Logo */}
@@ -60,8 +61,8 @@ const Sidebar = () => {
         >
           {!isCollapsed && (
             <h2 className="text-2xl font-bold text-text-primary transition-opacity duration-300">
-              <span className="text-brand-primary">Connect</span>
-              <span className="text-action-like">Hub</span>
+              Connect
+              <span className="text-brand-primary">Hub</span>
             </h2>
           )}
           <button
@@ -124,7 +125,7 @@ const Sidebar = () => {
           </NavLink>
 
           <NavLink
-            to="/profile"
+            to={`/profile/${user?.username}`}
             className={navLinkClasses}
             title={isCollapsed ? 'Profile' : ''}
           >

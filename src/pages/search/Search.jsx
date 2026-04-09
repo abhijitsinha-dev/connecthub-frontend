@@ -19,7 +19,7 @@ const Search = () => {
   ];
 
   // Search handler
-  const handleSearch = (query) => {
+  const handleSearch = query => {
     setSearchQuery(query);
 
     if (query.trim() === '') {
@@ -32,9 +32,9 @@ const Search = () => {
     // Simulate API call delay
     setTimeout(() => {
       const results = mockUsers.filter(
-        (user) =>
+        user =>
           user.fullName.toLowerCase().includes(query.toLowerCase()) ||
-          user.username.toLowerCase().includes(query.toLowerCase()),
+          user.username.toLowerCase().includes(query.toLowerCase())
       );
       setSearchResults(results);
       setIsLoading(false);
@@ -65,9 +65,9 @@ const Search = () => {
 
       {/* Slide-in Search Panel */}
       <div
-        className={`fixed left-0 top-0 h-dvh bg-bg-primary shadow-lg flex flex-col transition-transform duration-300 ease-in-out pointer-events-auto ${
-          isSidebarCollapsed ? 'w-80' : 'w-96'
-        } transform ${isSearchOpen ? 'translate-x-0' : '-translate-x-full'} z-50`}
+        className={`fixed left-0 top-0 h-dvh bg-bg-primary shadow-lg flex flex-col transition-transform duration-300 ease-in-out pointer-events-auto
+        w-full md:w-96 ${isSidebarCollapsed ? 'md:w-80' : ''}
+        transform ${isSearchOpen ? 'translate-x-0' : '-translate-x-full'} z-50`}
       >
         {/* Header */}
         <div className="p-4 border-b border-bg-secondary sticky top-0 bg-bg-primary z-10">
@@ -90,7 +90,7 @@ const Search = () => {
               type="text"
               placeholder="Search by name or username..."
               value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
+              onChange={e => handleSearch(e.target.value)}
               className="w-full px-4 py-2 pr-10 rounded-lg bg-bg-secondary text-text-primary placeholder-text-secondary border border-bg-secondary focus:border-brand-primary focus:outline-none transition-colors"
               autoFocus
             />
@@ -125,7 +125,7 @@ const Search = () => {
             </div>
           ) : (
             <div className="p-4 space-y-2">
-              {searchResults.map((user) => (
+              {searchResults.map(user => (
                 <div
                   key={user.id}
                   onClick={() => handleUserClick(user.id, user.username)}
