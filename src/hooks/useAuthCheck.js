@@ -16,6 +16,7 @@ const useAuthCheck = () => {
     const verifySession = async () => {
       // 2. If not logged in, boot them to the login page
       if (!token) {
+        setIsLoading(false);
         navigate('/');
         return;
       }

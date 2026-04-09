@@ -51,7 +51,6 @@ const ProfileEditModal = ({ isOpen, userData, onClose, onUpdateSuccess }) => {
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                required
                 className={getInputClass('username')}
               />
               {fieldErrors.username && (
