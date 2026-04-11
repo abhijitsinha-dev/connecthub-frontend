@@ -43,8 +43,16 @@ const authApi = {
     return await axiosClient.get('/media/get-signature');
   },
 
-  updateLoggedInUser: async userData => {
-    return await axiosClient.patch(userData);
+  emailChange: async emailData => {
+    return await axiosClient.patch('/auth/email', emailData);
+  },
+
+  emailChangeVerifyOtp: async verificationData => {
+    return await axiosClient.patch('/auth/email/verify-otp', verificationData);
+  },
+
+  updatePassword: async passwordData => {
+    return await axiosClient.patch('/auth/password', passwordData);
   },
 };
 
