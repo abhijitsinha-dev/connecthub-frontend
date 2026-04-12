@@ -1,7 +1,12 @@
 import { useState } from 'react';
-import validator from 'validator';
 import { useAuth } from '../../../context/AuthContext';
 import authApi from '../../../services/auth.service';
+import {
+  validateUsername,
+  validateEmail,
+  validatePassword,
+  validateConfirmPassword,
+} from '../../../utils/validators';
 
 export const useSignup = onSuccessCallback => {
   const [signupData, setSignupData] = useState({
@@ -27,37 +32,21 @@ export const useSignup = onSuccessCallback => {
   const handleSignupSubmit = async e => {
     e.preventDefault();
     const errors = {};
-    const usernameRegex = /^[a-z0-9_-]+$/;
 
-    // Username Validation
-    if (!signupData.username.trim()) {
-      errors.username = 'Username is required';
-    } else if (!usernameRegex.test(signupData.username)) {
-      errors.username =
-        'username must contain only lowercase letters, numbers, underscores, and hyphens';
-    }
+    const usernameError = validateUsername(signupData.username);
+    if (usernameError) errors.username = usernameError;
 
-    // Email Validation using validator
-    if (!signupData.email.trim()) {
-      errors.email = 'Email is required';
-    } else if (!validator.isEmail(signupData.email)) {
-      errors.email = 'Enter a valid email';
-    }
+    const emailError = validateEmail(signupData.email);
+    if (emailError) errors.email = emailError;
 
-    // Password Strength Validation using validator
-    if (!signupData.password) {
-      errors.password = 'Password is required';
-    } else if (!validator.isStrongPassword(signupData.password)) {
-      errors.password =
-        'Password must be at least 8 characters long and include uppercase letters, lowercase letters, numbers, and symbols';
-    }
+    const passwordError = validatePassword(signupData.password);
+    if (passwordError) errors.password = passwordError;
 
-    // Confirm Password Validation
-    if (!signupData.confirmPassword) {
-      errors.confirmPassword = 'Please confirm your password';
-    } else if (signupData.password !== signupData.confirmPassword) {
-      errors.confirmPassword = "Passwords doesn't match";
-    }
+    const confirmError = validateConfirmPassword(
+      signupData.password,
+      signupData.confirmPassword
+    );
+    if (confirmError) errors.confirmPassword = confirmError;
 
     if (Object.keys(errors).length > 0) {
       setSignupErrors(errors);

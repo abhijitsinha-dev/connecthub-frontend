@@ -58,7 +58,7 @@ const ProfileAboutModal = ({ isOpen, userData, onClose }) => {
             </div>
             <div>
               <p className="text-sm text-text-secondary">Gender</p>
-              <p className="text-text-primary font-medium">{userData.gender}</p>
+              <p className="text-text-primary font-medium">{userData.gender ? userData.gender.charAt(0).toUpperCase() + userData.gender.slice(1) : 'Not specified'}</p>
             </div>
           </div>
 

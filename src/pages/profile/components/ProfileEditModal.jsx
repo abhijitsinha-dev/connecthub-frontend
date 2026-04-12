@@ -9,7 +9,8 @@ const ProfileEditModal = ({ isOpen, userData, onClose, onUpdateSuccess }) => {
   useScrollLock(isOpen);
   const [activeTab, setActiveTab] = useState('profile');
 
-  // Password visibility state
+  // Password visibility state — eye button only shown when a field is focused
+  const [focusedPassField, setFocusedPassField] = useState(null);
   const [showPass, setShowPass] = useState({
     old: false,
     new: false,
@@ -18,6 +19,11 @@ const ProfileEditModal = ({ isOpen, userData, onClose, onUpdateSuccess }) => {
 
   const toggleShowPass = field => {
     setShowPass(prev => ({ ...prev, [field]: !prev[field] }));
+  };
+
+  const handlePassBlur = field => {
+    setFocusedPassField(null);
+    setShowPass(prev => ({ ...prev, [field]: false }));
   };
 
   // Existing Profile Form Hook
@@ -52,6 +58,7 @@ const ProfileEditModal = ({ isOpen, userData, onClose, onUpdateSuccess }) => {
     if (!isOpen) {
       setActiveTab('profile');
       resetSecurityState();
+      setFocusedPassField(null);
       setShowPass({ old: false, new: false, confirm: false });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -326,6 +333,8 @@ const ProfileEditModal = ({ isOpen, userData, onClose, onUpdateSuccess }) => {
                         name="oldPassword"
                         value={passData.oldPassword}
                         onChange={handlePassChange}
+                        onFocus={() => setFocusedPassField('old')}
+                        onBlur={() => handlePassBlur('old')}
                         required
                         className={getInputClass(
                           'oldPassword',
@@ -333,17 +342,20 @@ const ProfileEditModal = ({ isOpen, userData, onClose, onUpdateSuccess }) => {
                           'pr-10 bg-bg-primary'
                         )}
                       />
-                      <button
-                        type="button"
-                        onClick={() => toggleShowPass('old')}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
-                      >
-                        {showPass.old ? (
-                          <BiShow size={20} />
-                        ) : (
-                          <BiHide size={20} />
-                        )}
-                      </button>
+                      {focusedPassField === 'old' && (
+                        <button
+                          type="button"
+                          onMouseDown={e => e.preventDefault()}
+                          onClick={() => toggleShowPass('old')}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
+                        >
+                          {showPass.old ? (
+                            <BiShow size={20} />
+                          ) : (
+                            <BiHide size={20} />
+                          )}
+                        </button>
+                      )}
                     </div>
                     {passStatus.fieldErrors?.oldPassword && (
                       <p className="text-red-500 text-xs mt-1.5 ml-1">
@@ -362,6 +374,8 @@ const ProfileEditModal = ({ isOpen, userData, onClose, onUpdateSuccess }) => {
                           name="newPassword"
                           value={passData.newPassword}
                           onChange={handlePassChange}
+                          onFocus={() => setFocusedPassField('new')}
+                          onBlur={() => handlePassBlur('new')}
                           required
                           className={getInputClass(
                             'newPassword',
@@ -369,17 +383,20 @@ const ProfileEditModal = ({ isOpen, userData, onClose, onUpdateSuccess }) => {
                             'pr-10 bg-bg-primary'
                           )}
                         />
-                        <button
-                          type="button"
-                          onClick={() => toggleShowPass('new')}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
-                        >
-                          {showPass.new ? (
-                            <BiShow size={20} />
-                          ) : (
-                            <BiHide size={20} />
-                          )}
-                        </button>
+                        {focusedPassField === 'new' && (
+                          <button
+                            type="button"
+                            onMouseDown={e => e.preventDefault()}
+                            onClick={() => toggleShowPass('new')}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
+                          >
+                            {showPass.new ? (
+                              <BiShow size={20} />
+                            ) : (
+                              <BiHide size={20} />
+                            )}
+                          </button>
+                        )}
                       </div>
                       {passStatus.fieldErrors?.newPassword && (
                         <p className="text-red-500 text-xs mt-1.5 ml-1">
@@ -397,6 +414,8 @@ const ProfileEditModal = ({ isOpen, userData, onClose, onUpdateSuccess }) => {
                           name="confirmNewPassword"
                           value={passData.confirmNewPassword}
                           onChange={handlePassChange}
+                          onFocus={() => setFocusedPassField('confirm')}
+                          onBlur={() => handlePassBlur('confirm')}
                           required
                           className={getInputClass(
                             'confirmNewPassword',
@@ -404,17 +423,20 @@ const ProfileEditModal = ({ isOpen, userData, onClose, onUpdateSuccess }) => {
                             'pr-10 bg-bg-primary'
                           )}
                         />
-                        <button
-                          type="button"
-                          onClick={() => toggleShowPass('confirm')}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
-                        >
-                          {showPass.confirm ? (
-                            <BiShow size={20} />
-                          ) : (
-                            <BiHide size={20} />
-                          )}
-                        </button>
+                        {focusedPassField === 'confirm' && (
+                          <button
+                            type="button"
+                            onMouseDown={e => e.preventDefault()}
+                            onClick={() => toggleShowPass('confirm')}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
+                          >
+                            {showPass.confirm ? (
+                              <BiShow size={20} />
+                            ) : (
+                              <BiHide size={20} />
+                            )}
+                          </button>
+                        )}
                       </div>
                       {passStatus.fieldErrors?.confirmNewPassword && (
                         <p className="text-red-500 text-xs mt-1.5 ml-1">

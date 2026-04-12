@@ -1,6 +1,7 @@
 import { useState } from 'react';
 // TODO: Adjust this import path to point to your actual API instance
 import authApi from '../../../services/auth.service';
+import { validateEmail } from '../../../utils/validators';
 
 const useSecuritySettings = (userData, onUpdateSuccess) => {
   // Password State
@@ -123,12 +124,13 @@ const useSecuritySettings = (userData, onUpdateSuccess) => {
     e.preventDefault();
     const formattedEmail = emailData.newEmail.trim().toLowerCase();
 
-    if (!/^\S+@\S+\.\S+$/.test(formattedEmail)) {
+    const emailError = validateEmail(formattedEmail);
+    if (emailError) {
       return setEmailStatus({
         loading: false,
         generalError: '',
         success: '',
-        fieldErrors: { newEmail: 'Please enter a valid email address.' },
+        fieldErrors: { newEmail: emailError },
       });
     }
     if (formattedEmail === userData.email) {

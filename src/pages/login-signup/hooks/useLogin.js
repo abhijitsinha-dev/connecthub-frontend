@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import validator from 'validator';
 import authApi from '../../../services/auth.service';
 import { useAuth } from '../../../context/AuthContext';
+import { validateEmail, validatePassword } from '../../../utils/validators';
 
 export const useLogin = () => {
   const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -27,11 +27,12 @@ export const useLogin = () => {
     if (!loginData.email.trim()) errors.email = 'Email is required';
     if (!loginData.password) errors.password = 'Password is required';
 
+    // If both fields are filled, validate format — show combined error for login
     if (loginData.email && loginData.password) {
-      const isEmailValid = validator.isEmail(loginData.email);
-      const isPasswordStrong = validator.isStrongPassword(loginData.password);
+      const emailError = validateEmail(loginData.email);
+      const passwordError = validatePassword(loginData.password);
 
-      if (!isEmailValid || !isPasswordStrong) {
+      if (emailError || passwordError) {
         errors.email = 'Incorrect email or password';
         errors.password = 'Incorrect email or password';
       }

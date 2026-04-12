@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
-import validator from 'validator';
 import userApi from '../../../services/user.service';
+import {
+  validateUsername,
+  validateFullName,
+  validatePhoneNumber,
+} from '../../../utils/validators';
 
 const useProfileEditForm = ({ isOpen, userData, onClose, onUpdateSuccess }) => {
   const [formData, setFormData] = useState({
@@ -76,37 +80,14 @@ const useProfileEditForm = ({ isOpen, userData, onClose, onUpdateSuccess }) => {
     setFieldErrors({});
     const errors = {};
 
-    const usernameTrimmed = formData.username.trim();
-    if (
-      !usernameTrimmed ||
-      usernameTrimmed.length < 5 ||
-      usernameTrimmed.length > 30
-    ) {
-      errors.username = 'Username must be between 5 and 30 characters.';
-    } else if (!/^[a-z0-9_-]+$/.test(usernameTrimmed)) {
-      errors.username =
-        'Username must contain only lowercase letters, numbers, underscores, and hyphens.';
-    }
+    const usernameError = validateUsername(formData.username);
+    if (usernameError) errors.username = usernameError;
 
-    const fullNameTrimmed = formData.fullName.trim();
-    if (
-      !fullNameTrimmed ||
-      fullNameTrimmed.length < 5 ||
-      fullNameTrimmed.length > 100
-    ) {
-      errors.fullName = 'Full name must be between 5 and 100 characters.';
-    } else if (!/^[a-zA-Z\s]+$/.test(fullNameTrimmed)) {
-      errors.fullName = 'Full name must contain only letters and spaces.';
-    }
+    const fullNameError = validateFullName(formData.fullName);
+    if (fullNameError) errors.fullName = fullNameError;
 
-    const phoneTrimmed = formData.phoneNumber.trim();
-    if (
-      phoneTrimmed &&
-      phoneTrimmed !== '+91' &&
-      !validator.isMobilePhone(phoneTrimmed)
-    ) {
-      errors.phoneNumber = 'Please enter a valid phone number.';
-    }
+    const phoneError = validatePhoneNumber(formData.phoneNumber);
+    if (phoneError) errors.phoneNumber = phoneError;
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -116,11 +97,11 @@ const useProfileEditForm = ({ isOpen, userData, onClose, onUpdateSuccess }) => {
     try {
       setIsLoading(true);
       const payload = {
-        username: usernameTrimmed,
-        fullName: fullNameTrimmed,
+        username: formData.username.trim(),
+        fullName: formData.fullName.trim(),
         bio: formData.bio.trim(),
         phoneNumber:
-          phoneTrimmed === '' || phoneTrimmed === '+91' ? null : phoneTrimmed,
+          formData.phoneNumber.trim() === '' || formData.phoneNumber.trim() === '+91' ? null : formData.phoneNumber.trim(),
         gender: formData.gender,
         dateOfBirth: formData.dateOfBirth || null,
         address: formData.address.trim(),

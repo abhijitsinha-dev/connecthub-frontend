@@ -141,16 +141,20 @@ const useProfileData = () => {
   };
 
   const handleProfileUpdateSuccess = updatedFields => {
-    setUserData(prev => ({
-      ...prev,
-      username: updatedFields.username,
-      fullName: updatedFields.fullName,
-      bio: updatedFields.bio || 'Not provided',
-      phoneNumber: updatedFields.phoneNumber || 'Not provided',
-      gender: updatedFields.gender || 'prefer not to say',
-      dateOfBirth: updatedFields.dateOfBirth || prev.dateOfBirth,
-      address: updatedFields.address || 'Not provided',
-    }));
+    setUserData(prev => {
+      const updated = { ...prev };
+
+      if ('username' in updatedFields) updated.username = updatedFields.username;
+      if ('fullName' in updatedFields) updated.fullName = updatedFields.fullName;
+      if ('email' in updatedFields) updated.email = updatedFields.email;
+      if ('bio' in updatedFields) updated.bio = updatedFields.bio || 'Not provided';
+      if ('phoneNumber' in updatedFields) updated.phoneNumber = updatedFields.phoneNumber || 'Not provided';
+      if ('gender' in updatedFields) updated.gender = updatedFields.gender || 'prefer not to say';
+      if ('dateOfBirth' in updatedFields) updated.dateOfBirth = updatedFields.dateOfBirth || prev.dateOfBirth;
+      if ('address' in updatedFields) updated.address = updatedFields.address || 'Not provided';
+
+      return updated;
+    });
 
     if (user) {
       handleAuthSuccess({ ...user, ...updatedFields });
