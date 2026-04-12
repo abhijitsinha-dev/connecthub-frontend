@@ -1,51 +1,7 @@
-import { useState } from 'react';
-import { BiHeart, BiMessageRounded, BiUserPlus, BiCheck } from 'react-icons/bi';
-
-const FEED_POSTS = [
-  {
-    id: 1,
-    type: 'text',
-    author: {
-      name: 'Maya Rivers',
-      username: 'maya.codes',
-      avatar: 'https://i.pravatar.cc/120?img=47',
-    },
-    content:
-      'Shipping a new feature this evening. Tiny UX details make huge differences when users feel them without noticing. ✨',
-    likes: 84,
-    comments: 13,
-    timestamp: '35 minutes ago',
-  },
-  {
-    id: 2,
-    type: 'photo',
-    author: {
-      name: 'Leo Carter',
-      username: 'leo.visuals',
-      avatar: 'https://i.pravatar.cc/120?img=12',
-    },
-    content: 'Morning run before work. The sky looked unreal today.',
-    mediaUrl:
-      'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&q=80&w=1400',
-    likes: 231,
-    comments: 27,
-    timestamp: '2 hours ago',
-  },
-  {
-    id: 3,
-    type: 'video',
-    author: {
-      name: 'Ariana Kim',
-      username: 'ariana.learns',
-      avatar: 'https://i.pravatar.cc/120?img=32',
-    },
-    content: 'Quick walkthrough of the onboarding flow I prototyped today.',
-    mediaUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    likes: 145,
-    comments: 19,
-    timestamp: 'Yesterday',
-  },
-];
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { BiUserPlus, BiCheck, BiLoaderAlt } from 'react-icons/bi';
+import { useFeed } from '../../context/FeedContext';
+import Post from './components/Post';
 
 const RECOMMENDED_USERS = [
   {
@@ -80,9 +36,34 @@ const RECOMMENDED_USERS = [
 
 const Home = () => {
   const [followingIds, setFollowingIds] = useState(new Set([2]));
+  const { posts, fetchFeed, loading, hasMore, isInitialLoadDone } = useFeed();
 
-  const handleFollowToggle = (userId) => {
-    setFollowingIds((prev) => {
+  const observer = useRef();
+
+  const triggerElementRef = useCallback(
+    node => {
+      if (loading) return;
+      if (observer.current) observer.current.disconnect();
+
+      observer.current = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && hasMore) {
+          fetchFeed(false);
+        }
+      });
+
+      if (node) observer.current.observe(node);
+    },
+    [loading, hasMore, fetchFeed]
+  );
+
+  useEffect(() => {
+    if (!isInitialLoadDone.current && posts.length === 0) {
+      fetchFeed(true);
+    }
+  }, [fetchFeed, posts.length, isInitialLoadDone]);
+
+  const handleFollowToggle = userId => {
+    setFollowingIds(prev => {
       const next = new Set(prev);
       if (next.has(userId)) {
         next.delete(userId);
@@ -96,7 +77,7 @@ const Home = () => {
   return (
     <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
       <div className="w-full flex justify-end">
-        <div className="w-full max-w-350 flex flex-col lg:flex-row lg:justify-end gap-8">
+        <div className="w-full max-w-7xl flex flex-col lg:flex-row lg:justify-end gap-8">
           <section className="w-full lg:max-w-3xl">
             <div className="flex items-center justify-between mb-5">
               <h1 className="text-2xl sm:text-3xl font-bold text-text-primary">
@@ -108,67 +89,37 @@ const Home = () => {
             </div>
 
             <div className="space-y-5">
-              {FEED_POSTS.map((post) => (
-                <article
-                  key={post.id}
-                  className="bg-bg-primary rounded-2xl shadow-sm border border-border-primary p-5 flex flex-col"
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <img
-                      src={post.author.avatar}
-                      alt={`${post.author.name} avatar`}
-                      className="w-11 h-11 rounded-full object-cover border border-border-primary"
-                    />
-                    <div>
-                      <p className="font-semibold text-text-primary text-sm">
-                        {post.author.name}
-                      </p>
-                      <p className="text-text-secondary text-xs">
-                        @{post.author.username} • {post.timestamp}
-                      </p>
-                    </div>
-                  </div>
+              {posts.map((post, index) => {
+                const isTriggerElement =
+                  posts.length >= 3
+                    ? index === posts.length - 3
+                    : index === posts.length - 1;
+                return (
+                  <Post
+                    key={post.id}
+                    ref={isTriggerElement ? triggerElementRef : null}
+                    post={post}
+                  />
+                );
+              })}
 
-                  {post.content && (
-                    <p className="text-text-primary mb-4 text-sm leading-relaxed">
-                      {post.content}
-                    </p>
-                  )}
+              {loading && (
+                <div className="flex justify-center py-6">
+                  <BiLoaderAlt className="animate-spin text-3xl text-brand-primary" />
+                </div>
+              )}
 
-                  {post.type === 'photo' && (
-                    <div className="mb-4 rounded-xl overflow-hidden bg-bg-secondary w-full">
-                      <img
-                        src={post.mediaUrl}
-                        alt="Post media"
-                        className="w-full h-full object-cover aspect-video"
-                      />
-                    </div>
-                  )}
+              {!hasMore && posts.length > 0 && (
+                <div className="text-center py-6 text-text-secondary text-sm">
+                  You have caught up with everything!
+                </div>
+              )}
 
-                  {post.type === 'video' && (
-                    <div className="mb-4 rounded-xl overflow-hidden bg-black w-full">
-                      <video
-                        controls
-                        src={post.mediaUrl}
-                        className="w-full h-full object-cover aspect-video"
-                      />
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-6 mt-auto pt-4 border-t border-border-primary">
-                    <button className="flex items-center gap-2 text-text-secondary hover:text-brand-primary transition-colors group">
-                      <BiHeart className="text-xl group-hover:scale-110 transition-transform" />
-                      <span className="text-sm font-medium">{post.likes}</span>
-                    </button>
-                    <button className="flex items-center gap-2 text-text-secondary hover:text-brand-primary transition-colors group">
-                      <BiMessageRounded className="text-xl group-hover:scale-110 transition-transform" />
-                      <span className="text-sm font-medium">
-                        {post.comments}
-                      </span>
-                    </button>
-                  </div>
-                </article>
-              ))}
+              {!loading && posts.length === 0 && (
+                <div className="text-center py-12 text-text-secondary">
+                  No posts to show yet. Follow someone or check back later!
+                </div>
+              )}
             </div>
           </section>
 
@@ -182,7 +133,7 @@ const Home = () => {
               </p>
 
               <div className="space-y-4">
-                {RECOMMENDED_USERS.map((user) => {
+                {RECOMMENDED_USERS.map(user => {
                   const isFollowing = followingIds.has(user.id);
                   return (
                     <div

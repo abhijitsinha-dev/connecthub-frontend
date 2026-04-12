@@ -95,9 +95,10 @@ const useCreatePost = () => {
       };
 
       const response = await postApi.createPost(postData);
+      console.log(response);
 
-      if (response && (response.status === 201 || response.status === 200)) {
-        setSuccess(response.data?.message || 'Post created successfully!');
+      if (response?.status === 'success') {
+        setSuccess(response?.message || 'Post created successfully!');
 
         setCaption('');
         setMediaFile(null);
