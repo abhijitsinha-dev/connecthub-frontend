@@ -4,11 +4,7 @@ import mediaApi from '../../../services/media.service';
 import userApi from '../../../services/user.service';
 import { useParams } from 'react-router-dom';
 
-export const DEFAULT_PROFILE_PICTURE =
-  'https://res.cloudinary.com/dl8c40ppg/image/upload/v1775503611/zbj6efjrtmly4wfqe0tg.jpg';
-export const DEFAULT_COVER_PHOTO =
-  'https://placehold.co/2000x600/e2e8f0/64748b?text=Cover+Photo';
-
+import { DEFAULT_PROFILE_PICTURE, DEFAULT_COVER_PHOTO } from '../../../utils/constants';
 const useProfileData = () => {
   const { username } = useParams();
   const { user, handleAuthSuccess } = useAuth();

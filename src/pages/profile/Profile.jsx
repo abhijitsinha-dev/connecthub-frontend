@@ -3,10 +3,11 @@ import ProfileTopSection from './components/ProfileTopSection';
 import ProfilePostsSection from './components/ProfilePostsSection';
 import ProfileAboutModal from './components/ProfileAboutModal';
 import ProfileEditModal from './components/ProfileEditModal';
-import useProfileData, {
+import useProfileData from './hooks/useProfileData';
+import {
   DEFAULT_PROFILE_PICTURE,
   DEFAULT_COVER_PHOTO,
-} from './hooks/useProfileData';
+} from '../../utils/constants';
 
 const MOCK_POSTS = [
   {
