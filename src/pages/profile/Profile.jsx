@@ -20,6 +20,7 @@ const Profile = () => {
     posts,
     setPage,
     hasMore,
+    totalPosts,
     isLoading: isLoadingPosts,
   } = useProfilePosts();
 
@@ -57,6 +58,7 @@ const Profile = () => {
 
   const resolvedUserData = {
     ...userData,
+    postsCount: totalPosts,
     profilePicture: userData.profilePicture || DEFAULT_PROFILE_PICTURE,
     coverPhoto: userData.coverPhoto || DEFAULT_COVER_PHOTO,
   };

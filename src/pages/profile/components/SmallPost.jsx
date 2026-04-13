@@ -1,8 +1,40 @@
-import { BiHeart, BiMessageRounded } from 'react-icons/bi';
+import { useState } from 'react';
+import { BiHeart, BiSolidHeart, BiMessageRounded } from 'react-icons/bi';
 import { formatDate } from '../../../utils/helpers';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
+import postApi from '../../../services/post.service';
 
 const SmallPost = ({ post, userData, innerRef }) => {
+  const { user } = useAuth();
+
+  const [isLiked, setIsLiked] = useState(
+    () => post.likedBy?.includes(user?.id) || false
+  );
+  const [likesCount, setLikesCount] = useState(() => post.likedBy?.length || 0);
+
+  const handleLikeToggle = async e => {
+    e.preventDefault();
+    if (!user) return;
+
+    const previousIsLiked = isLiked;
+    const previousLikesCount = likesCount;
+
+    setIsLiked(!isLiked);
+    setLikesCount(prev => (isLiked ? Math.max(0, prev - 1) : prev + 1));
+
+    try {
+      if (isLiked) {
+        await postApi.unlikePost(post.id);
+      } else {
+        await postApi.likePost(post.id);
+      }
+    } catch (error) {
+      console.error('Failed to toggle like on post', error);
+      setIsLiked(previousIsLiked);
+      setLikesCount(previousLikesCount);
+    }
+  };
   return (
     <div
       ref={innerRef}
@@ -18,12 +50,18 @@ const SmallPost = ({ post, userData, innerRef }) => {
         </Link>
         <div>
           <p className="font-semibold text-text-primary text-sm">
-            <Link to={`/profile/${userData.username}`} className="hover:underline decoration-text-primary/50">
+            <Link
+              to={`/profile/${userData.username}`}
+              className="hover:underline decoration-text-primary/50"
+            >
               {userData.fullName || userData.username}
             </Link>
           </p>
           <p className="text-text-secondary text-xs">
-            <Link to={`/profile/${userData.username}`} className="hover:underline decoration-text-secondary/50">
+            <Link
+              to={`/profile/${userData.username}`}
+              className="hover:underline decoration-text-secondary/50"
+            >
               @{userData.username}
             </Link>{' '}
             • {formatDate(post.createdAt)}
@@ -56,13 +94,26 @@ const SmallPost = ({ post, userData, innerRef }) => {
       )}
 
       <div className="flex items-center gap-6 mt-auto pt-4 border-t border-border-primary">
-        <button className="flex items-center gap-2 text-text-secondary hover:text-brand-primary transition-colors group">
-          <BiHeart className="text-xl group-hover:scale-110 transition-transform" />
-          <span className="text-sm font-medium">{post.likedBy?.length || 0}</span>
+        <button
+          onClick={handleLikeToggle}
+          className="flex items-center gap-2 text-text-secondary hover:text-red-500 transition-colors group"
+        >
+          {isLiked ? (
+            <BiSolidHeart className="text-xl text-red-500 group-hover:scale-110 transition-transform" />
+          ) : (
+            <BiHeart className="text-xl group-hover:scale-110 transition-transform" />
+          )}
+          <span
+            className={`text-sm font-medium ${isLiked ? 'text-red-500' : ''}`}
+          >
+            {likesCount}
+          </span>
         </button>
         <button className="flex items-center gap-2 text-text-secondary hover:text-brand-primary transition-colors group">
           <BiMessageRounded className="text-xl group-hover:scale-110 transition-transform" />
-          <span className="text-sm font-medium">{post.comments?.length || 0}</span>
+          <span className="text-sm font-medium">
+            {post.comments?.length || 0}
+          </span>
         </button>
       </div>
     </div>

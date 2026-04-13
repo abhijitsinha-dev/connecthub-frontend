@@ -8,6 +8,7 @@ const useProfilePosts = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [totalPosts, setTotalPosts] = useState(0);
 
   // Initial fetch and state reset when username changes
   useEffect(() => {
@@ -25,6 +26,7 @@ const useProfilePosts = () => {
 
         const newPosts = res.data?.posts || [];
         setPosts(newPosts);
+        setTotalPosts(res.data?.totalPosts || 0);
         setHasMore(newPosts.length === 10);
       } catch (error) {
         console.error('Error fetching initial profile posts:', error);
@@ -53,6 +55,10 @@ const useProfilePosts = () => {
         if (!isMounted) return;
 
         const newPosts = res.data?.posts || [];
+        
+        if (typeof res.data?.totalPosts === 'number') {
+          setTotalPosts(res.data.totalPosts);
+        }
 
         setPosts(prevPosts => {
           const existingIds = new Set(prevPosts.map(p => p.id));
@@ -83,6 +89,7 @@ const useProfilePosts = () => {
     setPage,
     hasMore,
     isLoading,
+    totalPosts,
   };
 };
 

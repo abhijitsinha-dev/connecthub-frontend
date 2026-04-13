@@ -14,6 +14,14 @@ const postApi = {
       `/posts/${username}?page=${page}&limit=${limit}`
     );
   },
+
+  likePost: async postId => {
+    return await axiosClient.post(`/posts/${postId}/like`);
+  },
+
+  unlikePost: async postId => {
+    return await axiosClient.post(`/posts/${postId}/unlike`);
+  },
 };
 
 export default postApi;
