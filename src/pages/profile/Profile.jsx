@@ -1,62 +1,51 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import ProfileTopSection from './components/ProfileTopSection';
 import ProfilePostsSection from './components/ProfilePostsSection';
 import ProfileAboutModal from './components/ProfileAboutModal';
 import ProfileEditModal from './components/ProfileEditModal';
+import { useParams } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import useProfileData from './hooks/useProfileData';
+import useProfilePosts from './hooks/useProfilePosts';
 import {
   DEFAULT_PROFILE_PICTURE,
   DEFAULT_COVER_PHOTO,
 } from '../../utils/constants';
 
-const MOCK_POSTS = [
-  {
-    id: 1,
-    type: 'photo',
-    content: 'Enjoying the sunset at the beach! 🌅',
-    mediaUrl:
-      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=1000',
-    likes: 124,
-    comments: 15,
-    timestamp: '2 hours ago',
-  },
-  {
-    id: 2,
-    type: 'text',
-    content:
-      'Just launched my new portfolio website! Check it out and let me know what you think. 🚀 #webdev #portfolio',
-    likes: 89,
-    comments: 8,
-    timestamp: '1 day ago',
-  },
-  {
-    id: 3,
-    type: 'video',
-    content: 'A quick tutorial on how to center a div in CSS. #css #coding',
-    mediaUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    likes: 256,
-    comments: 42,
-    timestamp: '3 days ago',
-  },
-  {
-    id: 4,
-    type: 'photo',
-    content: 'Coffee shop coding session ☕️💻',
-    mediaUrl:
-      'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=1000',
-    likes: 198,
-    comments: 24,
-    timestamp: '1 week ago',
-  },
-];
-
 const Profile = () => {
+  const { username } = useParams();
+  const { user } = useAuth();
   const { userData, isFetching, isUploadingImage, actions } = useProfileData();
+  const {
+    posts,
+    setPage,
+    hasMore,
+    isLoading: isLoadingPosts,
+  } = useProfilePosts();
+
+  const isOwnProfile = user?.username === username;
 
   // UI State
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+
+  const observer = useRef();
+  const lastPostElementRef = useCallback(
+    node => {
+      if (isLoadingPosts) return;
+      if (observer.current) observer.current.disconnect();
+
+      observer.current = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPage(prevPage => prevPage + 1);
+        }
+      });
+
+      if (node) observer.current.observe(node);
+    },
+    [isLoadingPosts, hasMore, setPage]
+  );
 
   if (isFetching || !userData) {
     return (
@@ -82,6 +71,9 @@ const Profile = () => {
 
       <ProfileTopSection
         userData={resolvedUserData}
+        isOwnProfile={isOwnProfile}
+        loggedInUserId={user?.id}
+        onToggleFollow={actions.handleToggleFollow}
         imageActions={{
           onChange: actions.handleImageChange,
           onRemoveProfilePicture: actions.handleRemoveProfilePicture,
@@ -92,10 +84,12 @@ const Profile = () => {
       />
 
       <ProfilePostsSection
-        posts={MOCK_POSTS}
+        posts={posts}
         userData={resolvedUserData}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        lastPostElementRef={lastPostElementRef}
+        isLoadingPosts={isLoadingPosts}
       />
 
       <ProfileAboutModal

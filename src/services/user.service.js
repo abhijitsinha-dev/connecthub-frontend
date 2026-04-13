@@ -8,6 +8,14 @@ const userApi = {
   getUserByUsername: async username => {
     return await axiosClient.get(`/users/${username}`);
   },
+
+  followUser: async targetUserId => {
+    return await axiosClient.post(`/users/${targetUserId}/follow`);
+  },
+
+  unfollowUser: async targetUserId => {
+    return await axiosClient.post(`/users/${targetUserId}/unfollow`);
+  },
 };
 
 export default userApi;

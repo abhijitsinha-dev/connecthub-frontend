@@ -1,4 +1,5 @@
 import { forwardRef } from 'react';
+import { Link } from 'react-router-dom';
 import { BiHeart, BiMessageRounded } from 'react-icons/bi';
 import { formatDate } from '../../../utils/helpers';
 
@@ -17,31 +18,38 @@ const Post = forwardRef(({ post }, ref) => {
   return (
     <article
       ref={ref}
-      className="bg-bg-primary rounded-xl sm:rounded-2xl shadow-sm border border-border-primary p-4 sm:p-5 flex flex-col w-full sm:w-[500px] md:w-[600px] mx-auto max-h-[850px] overflow-hidden"
+      className="bg-bg-primary rounded-xl sm:rounded-2xl shadow-sm border border-border-primary p-4 sm:p-5 flex flex-col w-full sm:w-125 md:w-150 mx-auto max-h-212.5 overflow-hidden"
     >
       <div className="flex items-center gap-3 mb-3">
-        {post.user?.avatar?.url ? (
-          <img
-            src={post.user.avatar.url}
-            alt={`${post.user.fullName} avatar`}
-            className="w-11 h-11 rounded-full object-cover border border-border-primary"
-          />
-        ) : (
-          <div className="w-11 h-11 rounded-full bg-bg-secondary border border-border-primary flex items-center justify-center">
-            <span className="text-text-secondary font-semibold">
-              {post.user?.fullName?.charAt(0) ||
-                post.user?.username?.charAt(0) ||
-                '?'}
-            </span>
-          </div>
-        )}
+        <Link to={`/profile/${post.user?.username || 'unknown'}`} className="shrink-0">
+          {post.user?.avatar?.url ? (
+            <img
+              src={post.user.avatar.url}
+              alt={`${post.user.fullName} avatar`}
+              className="w-11 h-11 rounded-full object-cover border border-border-primary hover:opacity-80 transition-opacity"
+            />
+          ) : (
+            <div className="w-11 h-11 rounded-full bg-bg-secondary border border-border-primary flex items-center justify-center hover:opacity-80 transition-opacity">
+              <span className="text-text-secondary font-semibold">
+                {post.user?.fullName?.charAt(0) ||
+                  post.user?.username?.charAt(0) ||
+                  '?'}
+              </span>
+            </div>
+          )}
+        </Link>
 
         <div>
           <p className="font-semibold text-text-primary text-sm">
-            {post.user?.fullName || 'Unknown User'}
+            <Link to={`/profile/${post.user?.username || 'unknown'}`} className="hover:underline decoration-text-primary/50">
+              {post.user?.fullName || 'Unknown User'}
+            </Link>
           </p>
           <p className="text-text-secondary text-xs">
-            @{post.user?.username || 'unknown'} • {formatDate(post.createdAt)}
+            <Link to={`/profile/${post.user?.username || 'unknown'}`} className="hover:underline decoration-text-secondary/50">
+              @{post.user?.username || 'unknown'}
+            </Link>{' '}
+            • {formatDate(post.createdAt)}
           </p>
         </div>
       </div>
@@ -57,7 +65,7 @@ const Post = forwardRef(({ post }, ref) => {
           <img
             src={post.media.url}
             alt="Post media"
-            className="w-full h-auto max-h-[60vh] md:max-h-[400px] object-contain"
+            className="w-full h-auto max-h-[60vh] md:max-h-100 object-contain"
           />
         </div>
       )}
@@ -67,7 +75,7 @@ const Post = forwardRef(({ post }, ref) => {
           <video
             controls
             src={post.media.url}
-            className="w-full h-auto max-h-[60vh] md:max-h-[400px] object-contain"
+            className="w-full h-auto max-h-[60vh] md:max-h-100 object-contain"
           />
         </div>
       )}

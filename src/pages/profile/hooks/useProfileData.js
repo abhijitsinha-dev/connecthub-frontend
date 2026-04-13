@@ -11,6 +11,7 @@ const useProfileData = () => {
   const [userData, setUserData] = useState(null);
   const [isFetching, setIsFetching] = useState(true);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isTogglingFollow, setIsTogglingFollow] = useState(false);
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -18,7 +19,9 @@ const useProfileData = () => {
       const response = await userApi.getUserByUsername(username);
       const fetchedUser = response.data.user;
 
-      handleAuthSuccess(fetchedUser);
+      if (user?.username === fetchedUser.username) {
+        handleAuthSuccess(fetchedUser);
+      }
 
       setUserData({
         id: fetchedUser.id,
@@ -32,8 +35,10 @@ const useProfileData = () => {
         gender: fetchedUser.gender || 'Not specified',
         dateOfBirth: fetchedUser.dateOfBirth || null,
         address: fetchedUser.address || 'Not provided',
-        followersCount: 0,
-        followingCount: 0,
+        followers: fetchedUser.followers || [],
+        following: fetchedUser.following || [],
+        followersCount: fetchedUser.followers?.length || 0,
+        followingCount: fetchedUser.following?.length || 0,
         postsCount: 0,
       });
     } catch (error) {
@@ -41,7 +46,7 @@ const useProfileData = () => {
     } finally {
       setIsFetching(false);
     }
-  }, [handleAuthSuccess, username]);
+  }, [handleAuthSuccess, username, user?.username]);
 
   useEffect(() => {
     fetchProfile();
@@ -157,6 +162,35 @@ const useProfileData = () => {
     }
   };
 
+  const handleToggleFollow = async (isCurrentlyFollowing) => {
+    if (!userData || !user) return;
+    setIsTogglingFollow(true);
+    try {
+      if (isCurrentlyFollowing) {
+        await userApi.unfollowUser(userData.id);
+        setUserData(prev => ({
+          ...prev,
+          followers: prev.followers.filter(id => id !== user.id),
+          followersCount: Math.max(0, prev.followersCount - 1),
+        }));
+      } else {
+        await userApi.followUser(userData.id);
+        setUserData(prev => ({
+          ...prev,
+          followers: [...prev.followers, user.id],
+          followersCount: prev.followersCount + 1,
+        }));
+      }
+    } catch (error) {
+      console.error('Error toggling follow status:', error);
+      // Let the component handle reverting optimisitic update if needed or just alert
+      alert('Failed to updated follow status.');
+      throw error;
+    } finally {
+      setIsTogglingFollow(false);
+    }
+  };
+
   return {
     userData,
     isFetching,
@@ -166,6 +200,7 @@ const useProfileData = () => {
       handleRemoveProfilePicture,
       handleRemoveCoverPhoto,
       handleProfileUpdateSuccess,
+      handleToggleFollow,
     },
   };
 };

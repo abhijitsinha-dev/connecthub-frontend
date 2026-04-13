@@ -1,4 +1,5 @@
-import { BiEdit, BiCamera, BiInfoCircle } from 'react-icons/bi';
+import { useState, useEffect } from 'react';
+import { BiEdit, BiCamera, BiInfoCircle, BiUserPlus, BiCheck } from 'react-icons/bi';
 import ProfileImageActionModal from './ProfileImageActionModal';
 import useImagePicker from '../hooks/useImagePicker';
 
@@ -9,7 +10,18 @@ const ProfileTopSection = ({
   imageActions,
   onOpenAbout,
   onOpenEdit,
+  isOwnProfile,
+  loggedInUserId,
+  onToggleFollow,
 }) => {
+  const [isFollowing, setIsFollowing] = useState(false);
+
+  useEffect(() => {
+    if (userData?.followers && loggedInUserId) {
+      setIsFollowing(userData.followers.includes(loggedInUserId));
+    }
+  }, [userData?.followers, loggedInUserId]);
+
   // Derive boolean props locally to reduce props passed from parent
   const hasCustomProfilePicture =
     Boolean(userData.profilePicture) &&
@@ -46,19 +58,24 @@ const ProfileTopSection = ({
         />
         <button
           type="button"
-          onClick={coverPicker.handleClick}
-          className="cursor-pointer block w-full h-full relative"
-          aria-label="Update cover picture"
+          onClick={isOwnProfile ? coverPicker.handleClick : undefined}
+          className={`block w-full h-full relative ${isOwnProfile ? 'cursor-pointer' : 'cursor-default'}`}
+          aria-label={isOwnProfile ? 'Update cover picture' : 'Cover picture'}
+          disabled={!isOwnProfile}
         >
           <img
             src={userData.coverPhoto}
             alt="Cover"
-            className="w-full h-full object-cover group-hover:opacity-90 transition-opacity duration-200"
+            className={`w-full h-full object-cover transition-opacity duration-200 ${isOwnProfile ? 'group-hover:opacity-90' : ''}`}
           />
-          <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-200 pointer-events-none"></div>
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <BiCamera className="text-white text-4xl sm:text-6xl opacity-40 group-hover:opacity-70 transition-opacity duration-200 drop-shadow-md" />
-          </div>
+          {isOwnProfile && (
+            <>
+              <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-200 pointer-events-none"></div>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <BiCamera className="text-white text-4xl sm:text-6xl opacity-40 group-hover:opacity-70 transition-opacity duration-200 drop-shadow-md" />
+              </div>
+            </>
+          )}
           <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/20 pointer-events-none"></div>
         </button>
       </div>
@@ -78,20 +95,25 @@ const ProfileTopSection = ({
               />
               <button
                 type="button"
-                onClick={avatarPicker.handleClick}
-                className="cursor-pointer block"
-                aria-label="Update profile picture"
+                onClick={isOwnProfile ? avatarPicker.handleClick : undefined}
+                className={`block ${isOwnProfile ? 'cursor-pointer' : 'cursor-default'}`}
+                aria-label={isOwnProfile ? 'Update profile picture' : 'Profile picture'}
+                disabled={!isOwnProfile}
               >
                 <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-bg-primary overflow-hidden shadow-lg bg-bg-secondary relative">
                   <img
                     src={userData.profilePicture}
                     alt={userData.fullName}
-                    className="w-full h-full object-cover group-hover:opacity-90 transition-opacity duration-200"
+                    className={`w-full h-full object-cover transition-opacity duration-200 ${isOwnProfile ? 'group-hover:opacity-90' : ''}`}
                   />
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-200 pointer-events-none"></div>
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <BiCamera className="text-white text-4xl sm:text-5xl opacity-40 group-hover:opacity-70 transition-opacity duration-200 drop-shadow-md" />
-                  </div>
+                  {isOwnProfile && (
+                    <>
+                      <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors duration-200 pointer-events-none"></div>
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <BiCamera className="text-white text-4xl sm:text-5xl opacity-40 group-hover:opacity-70 transition-opacity duration-200 drop-shadow-md" />
+                      </div>
+                    </>
+                  )}
                 </div>
               </button>
             </div>
@@ -116,13 +138,40 @@ const ProfileTopSection = ({
               <BiInfoCircle className="text-lg" />
               About
             </button>
-            <button
-              onClick={onOpenEdit}
-              className="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 text-sm sm:text-base bg-bg-secondary text-text-primary font-medium hover:bg-border-primary rounded-full border border-border-primary transition-colors"
-            >
-              <BiEdit className="text-lg" />
-              Edit Profile
-            </button>
+            {isOwnProfile ? (
+              <button
+                onClick={onOpenEdit}
+                className="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 text-sm sm:text-base bg-bg-secondary text-text-primary font-medium hover:bg-border-primary rounded-full border border-border-primary transition-colors"
+              >
+                <BiEdit className="text-lg" />
+                Edit Profile
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  const newState = !isFollowing;
+                  setIsFollowing(newState);
+                  if (onToggleFollow) onToggleFollow(!newState); // pass the *current state* (before toggle) so API knows what to do
+                }}
+                className={`flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 text-sm sm:text-base font-medium rounded-full border transition-colors ${
+                  isFollowing
+                    ? 'bg-bg-secondary text-text-primary border-border-primary hover:bg-border-primary'
+                    : 'bg-brand-primary text-white border-brand-primary hover:bg-brand-secondary'
+                }`}
+              >
+                {isFollowing ? (
+                  <>
+                    <BiCheck className="text-lg" />
+                    Following
+                  </>
+                ) : (
+                  <>
+                    <BiUserPlus className="text-lg" />
+                    Follow
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
 
