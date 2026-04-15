@@ -1,19 +1,50 @@
-import { forwardRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { forwardRef, useEffect, useState } from 'react';
 import { BiHeart, BiSolidHeart, BiMessageRounded } from 'react-icons/bi';
-import { formatDate } from '../../../utils/helpers';
 import { useAuth } from '../../../context/AuthContext';
 import postApi from '../../../services/post.service';
+import PostModal from '../../../components/post/PostModal';
+import MobileCommentsModal from '../../../components/post/MobileCommentsModal';
+import PostAuthorHeader from '../../../components/post/PostAuthorHeader';
 
 const Post = forwardRef(({ post }, ref) => {
   const { user } = useAuth();
-
-  const [isLiked, setIsLiked] = useState(
-    () => post.likedBy?.includes(user?.id) || false
+  const [isDesktopModalOpen, setIsDesktopModalOpen] = useState(false);
+  const [isMobileCommentsModalOpen, setIsMobileCommentsModalOpen] =
+    useState(false);
+  const [isMobileScreen, setIsMobileScreen] = useState(
+    () => window.innerWidth < 640
   );
-  const [likesCount, setLikesCount] = useState(() => post.likedBy?.length || 0);
 
-  const commentsCount = post.comments?.length || 0;
+  const [isLiked, setIsLiked] = useState(post?.isLikedByCurrentUser ?? false);
+  const [likesCount, setLikesCount] = useState(post?.likesCount ?? 0);
+
+  const commentsCount = post?.commentsCount ?? 0;
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 639px)');
+    const handleScreenChange = event => {
+      setIsMobileScreen(event.matches);
+      if (!event.matches) {
+        setIsMobileCommentsModalOpen(false);
+      }
+    };
+
+    setIsMobileScreen(mediaQuery.matches);
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleScreenChange);
+    } else {
+      mediaQuery.addListener(handleScreenChange);
+    }
+
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener('change', handleScreenChange);
+      } else {
+        mediaQuery.removeListener(handleScreenChange);
+      }
+    };
+  }, []);
 
   const handleLikeToggle = async e => {
     e.preventDefault();
@@ -46,102 +77,93 @@ const Post = forwardRef(({ post }, ref) => {
     }
   }
 
+  const handleMediaClick = () => {
+    if (isMobileScreen) return;
+    setIsDesktopModalOpen(true);
+  };
+
+  const handleCommentsClick = () => {
+    if (isMobileScreen) {
+      setIsMobileCommentsModalOpen(true);
+      return;
+    }
+
+    setIsDesktopModalOpen(true);
+  };
+
   return (
-    <article
-      ref={ref}
-      className="bg-bg-primary rounded-xl sm:rounded-2xl shadow-sm border border-border-primary p-4 sm:p-5 flex flex-col w-full sm:w-125 md:w-150 mx-auto max-h-212.5 overflow-hidden"
-    >
-      <div className="flex items-center gap-3 mb-3">
-        <Link
-          to={`/profile/${post.user?.username || 'unknown'}`}
-          className="shrink-0"
-        >
-          {post.user?.avatar?.url ? (
-            <img
-              src={post.user.avatar.url}
-              alt={`${post.user.fullName} avatar`}
-              className="w-11 h-11 rounded-full object-cover border border-border-primary hover:opacity-80 transition-opacity"
-            />
-          ) : (
-            <div className="w-11 h-11 rounded-full bg-bg-secondary border border-border-primary flex items-center justify-center hover:opacity-80 transition-opacity">
-              <span className="text-text-secondary font-semibold">
-                {post.user?.fullName?.charAt(0) ||
-                  post.user?.username?.charAt(0) ||
-                  '?'}
-              </span>
-            </div>
-          )}
-        </Link>
+    <>
+      <article
+        ref={ref}
+        className="bg-bg-primary rounded-xl sm:rounded-2xl shadow-sm border border-border-primary p-4 sm:p-5 flex flex-col w-full sm:w-125 md:w-150 mx-auto max-h-212.5 overflow-hidden"
+      >
+        <PostAuthorHeader post={post} avatarClassName="w-11 h-11" />
 
-        <div>
-          <p className="font-semibold text-text-primary text-sm">
-            <Link
-              to={`/profile/${post.user?.username || 'unknown'}`}
-              className="hover:underline decoration-text-primary/50"
-            >
-              {post.user?.fullName || 'Unknown User'}
-            </Link>
-          </p>
-          <p className="text-text-secondary text-xs">
-            <Link
-              to={`/profile/${post.user?.username || 'unknown'}`}
-              className="hover:underline decoration-text-secondary/50"
-            >
-              @{post.user?.username || 'unknown'}
-            </Link>{' '}
-            • {formatDate(post.createdAt)}
-          </p>
-        </div>
-      </div>
-
-      {post.caption && (
-        <p className="text-text-primary mb-3 text-sm leading-relaxed whitespace-pre-wrap">
-          {post.caption}
-        </p>
-      )}
-
-      {mediaType === 'image' && post.media?.url && (
-        <div className="mb-3 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 w-full flex justify-center">
-          <img
-            src={post.media.url}
-            alt="Post media"
-            className="w-full h-auto max-h-[60vh] md:max-h-100 object-contain"
-          />
-        </div>
-      )}
-
-      {mediaType === 'video' && post.media?.url && (
-        <div className="mb-3 rounded-xl overflow-hidden bg-black w-full flex justify-center">
-          <video
-            controls
-            src={post.media.url}
-            className="w-full h-auto max-h-[60vh] md:max-h-100 object-contain"
-          />
-        </div>
-      )}
-
-      <div className="flex items-center gap-6 mt-auto pt-3 border-t border-border-primary">
-        <button
-          onClick={handleLikeToggle}
-          className="flex items-center gap-2 text-text-secondary hover:text-red-500 transition-colors group"
-        >
-          {isLiked ? (
-            <BiSolidHeart className="text-xl text-red-500 group-hover:scale-110 transition-transform" />
-          ) : (
-            <BiHeart className="text-xl group-hover:scale-110 transition-transform" />
-          )}
-          <span
-            className={`text-sm font-medium ${isLiked ? 'text-red-500' : ''}`}
+        {mediaType === 'image' && post.media?.url && (
+          <button
+            type="button"
+            onClick={handleMediaClick}
+            className="mb-3 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 w-full flex justify-center hover:opacity-90 transition-opacity"
           >
-            {likesCount}
-          </span>
-        </button>
-        <button className="flex items-center gap-2 text-text-secondary hover:text-brand-primary transition-colors group">
-          <BiMessageRounded className="text-xl group-hover:scale-110 transition-transform" />
-          <span className="text-sm font-medium">{commentsCount}</span>
-        </button>
-      </div>
-    </article>
+            <img
+              src={post.media.url}
+              alt="Post media"
+              className="w-full h-auto max-h-[60vh] md:max-h-100 object-contain"
+            />
+          </button>
+        )}
+
+        {mediaType === 'video' && post.media?.url && (
+          <div className="mb-3 rounded-xl overflow-hidden bg-black w-full flex justify-center">
+            <video
+              controls
+              src={post.media.url}
+              className="w-full h-auto max-h-[60vh] md:max-h-100 object-contain"
+            />
+          </div>
+        )}
+
+        <div className="flex items-center gap-6 mt-auto pt-3 border-t border-border-primary">
+          <button
+            onClick={handleLikeToggle}
+            className="flex items-center gap-2 text-text-secondary hover:text-red-500 transition-colors group"
+          >
+            {isLiked ? (
+              <BiSolidHeart className="text-xl text-red-500 group-hover:scale-110 transition-transform" />
+            ) : (
+              <BiHeart className="text-xl group-hover:scale-110 transition-transform" />
+            )}
+            <span
+              className={`text-sm font-medium ${isLiked ? 'text-red-500' : ''}`}
+            >
+              {likesCount}
+            </span>
+          </button>
+          <button
+            onClick={handleCommentsClick}
+            className="flex items-center gap-2 text-text-secondary hover:text-brand-primary transition-colors group"
+          >
+            <BiMessageRounded className="text-xl group-hover:scale-110 transition-transform" />
+            <span className="text-sm font-medium">{commentsCount}</span>
+          </button>
+        </div>
+      </article>
+
+      <PostModal
+        isOpen={isDesktopModalOpen}
+        onClose={() => setIsDesktopModalOpen(false)}
+        post={post}
+        isLiked={isLiked}
+        likesCount={likesCount}
+        onToggleLike={handleLikeToggle}
+      />
+
+      <MobileCommentsModal
+        isOpen={isMobileCommentsModalOpen}
+        onClose={() => setIsMobileCommentsModalOpen(false)}
+        post={post}
+      />
+    </>
   );
 });
 

@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import Sidebar from '../Sidebar';
+import Sidebar from './Sidebar';
 import Search from '../../pages/search/Search';
 import BottomNav from '.././mobile/BottomNav';
 import MobileHeader from '../mobile/MobileHeader';

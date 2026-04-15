@@ -1,9 +1,18 @@
 import { useState, useEffect } from 'react';
-import { BiEdit, BiCamera, BiInfoCircle, BiUserPlus, BiCheck } from 'react-icons/bi';
+import {
+  BiEdit,
+  BiCamera,
+  BiInfoCircle,
+  BiUserPlus,
+  BiCheck,
+} from 'react-icons/bi';
 import ProfileImageActionModal from './ProfileImageActionModal';
 import useImagePicker from '../hooks/useImagePicker';
 
-import { DEFAULT_PROFILE_PICTURE, DEFAULT_COVER_PHOTO } from '../../../utils/constants';
+import {
+  DEFAULT_PROFILE_PICTURE,
+  DEFAULT_COVER_PHOTO,
+} from '../../../utils/constants';
 
 const ProfileTopSection = ({
   userData,
@@ -97,7 +106,9 @@ const ProfileTopSection = ({
                 type="button"
                 onClick={isOwnProfile ? avatarPicker.handleClick : undefined}
                 className={`block ${isOwnProfile ? 'cursor-pointer' : 'cursor-default'}`}
-                aria-label={isOwnProfile ? 'Update profile picture' : 'Profile picture'}
+                aria-label={
+                  isOwnProfile ? 'Update profile picture' : 'Profile picture'
+                }
                 disabled={!isOwnProfile}
               >
                 <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-bg-primary overflow-hidden shadow-lg bg-bg-secondary relative">
@@ -120,7 +131,7 @@ const ProfileTopSection = ({
 
             {/* Basic Info */}
             <div className="min-w-0 pt-2 sm:pt-0 sm:pb-3 w-full">
-              <h1 className="text-2xl sm:text-3xl font-bold text-text-primary truncate max-w-full">
+              <h1 className="text-xl sm:text-2xl font-bold text-text-primary leading-tight wrap-break-word">
                 {userData.fullName || userData.username}
               </h1>
               <p className="text-brand-primary font-medium text-sm sm:text-base">

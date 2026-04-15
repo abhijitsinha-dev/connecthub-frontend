@@ -10,9 +10,9 @@ import {
   BiSun,
   BiMoon,
 } from 'react-icons/bi';
-import { useTheme } from '../context/ThemeContext';
-import { useUIContext } from '../context/UIContext';
-import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
+import { useUIContext } from '../../context/UIContext';
+import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 
 const Sidebar = () => {

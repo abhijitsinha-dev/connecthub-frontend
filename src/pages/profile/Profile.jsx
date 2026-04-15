@@ -61,6 +61,7 @@ const Profile = () => {
     postsCount: totalPosts,
     profilePicture: userData.profilePicture || DEFAULT_PROFILE_PICTURE,
     coverPhoto: userData.coverPhoto || DEFAULT_COVER_PHOTO,
+    dateOfBirth: userData.dateOfBirth || null,
   };
 
   return (

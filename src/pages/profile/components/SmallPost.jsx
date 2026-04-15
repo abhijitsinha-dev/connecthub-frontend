@@ -4,14 +4,15 @@ import { formatDate } from '../../../utils/helpers';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import postApi from '../../../services/post.service';
+import PostModal from '../../../components/post/PostModal';
 
 const SmallPost = ({ post, userData, innerRef }) => {
   const { user } = useAuth();
 
-  const [isLiked, setIsLiked] = useState(
-    () => post.likedBy?.includes(user?.id) || false
-  );
-  const [likesCount, setLikesCount] = useState(() => post.likedBy?.length || 0);
+  const [isLiked, setIsLiked] = useState(post?.isLikedByCurrentUser ?? false);
+  const [likesCount, setLikesCount] = useState(post?.likesCount ?? 0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const commentsCount = post?.commentsCount ?? 0;
 
   const handleLikeToggle = async e => {
     e.preventDefault();
@@ -35,6 +36,19 @@ const SmallPost = ({ post, userData, innerRef }) => {
       setLikesCount(previousLikesCount);
     }
   };
+
+  const enrichedPost = {
+    ...post,
+    user: {
+      id: userData.id,
+      username: userData.username,
+      fullName: userData.fullName,
+      avatar: {
+        url: userData.profilePicture,
+      },
+    },
+  };
+
   return (
     <div
       ref={innerRef}
@@ -75,13 +89,17 @@ const SmallPost = ({ post, userData, innerRef }) => {
       )}
 
       {post.media?.type === 'image' && (
-        <div className="mb-4 rounded-xl overflow-hidden bg-bg-secondary w-full">
+        <button
+          type="button"
+          onClick={() => setIsModalOpen(true)}
+          className="mb-4 rounded-xl overflow-hidden bg-bg-secondary w-full hover:opacity-90 transition-opacity cursor-pointer block"
+        >
           <img
             src={post.media.url}
             alt="Post media"
-            className="w-full h-full object-cover aspect-video"
+            className="w-full h-full object-contain aspect-video"
           />
-        </div>
+        </button>
       )}
       {post.media?.type === 'video' && (
         <div className="mb-4 rounded-xl overflow-hidden bg-black w-full">
@@ -109,13 +127,23 @@ const SmallPost = ({ post, userData, innerRef }) => {
             {likesCount}
           </span>
         </button>
-        <button className="flex items-center gap-2 text-text-secondary hover:text-brand-primary transition-colors group">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center gap-2 text-text-secondary hover:text-brand-primary transition-colors group"
+        >
           <BiMessageRounded className="text-xl group-hover:scale-110 transition-transform" />
-          <span className="text-sm font-medium">
-            {post.comments?.length || 0}
-          </span>
+          <span className="text-sm font-medium">{commentsCount}</span>
         </button>
       </div>
+
+      <PostModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        post={enrichedPost}
+        isLiked={isLiked}
+        likesCount={likesCount}
+        onToggleLike={handleLikeToggle}
+      />
     </div>
   );
 };

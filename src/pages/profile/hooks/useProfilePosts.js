@@ -2,6 +2,19 @@ import { useState, useEffect } from 'react';
 import postApi from '../../../services/post.service';
 import { useParams } from 'react-router-dom';
 
+const getProfilePostsPayload = response => {
+  const primary = response?.data;
+
+  if (
+    Array.isArray(primary?.posts) ||
+    typeof primary?.totalPosts === 'number'
+  ) {
+    return primary;
+  }
+
+  return primary?.data || {};
+};
+
 const useProfilePosts = () => {
   const { username } = useParams();
   const [posts, setPosts] = useState([]);
@@ -24,9 +37,10 @@ const useProfilePosts = () => {
         const res = await postApi.profilePosts(username, 1, 10);
         if (!isMounted) return;
 
-        const newPosts = res.data?.posts || [];
+        const payload = getProfilePostsPayload(res);
+        const newPosts = payload.posts || [];
         setPosts(newPosts);
-        setTotalPosts(res.data?.totalPosts || 0);
+        setTotalPosts(payload.totalPosts || 0);
         setHasMore(newPosts.length === 10);
       } catch (error) {
         console.error('Error fetching initial profile posts:', error);
@@ -54,10 +68,11 @@ const useProfilePosts = () => {
         const res = await postApi.profilePosts(username, page, 10);
         if (!isMounted) return;
 
-        const newPosts = res.data?.posts || [];
-        
-        if (typeof res.data?.totalPosts === 'number') {
-          setTotalPosts(res.data.totalPosts);
+        const payload = getProfilePostsPayload(res);
+        const newPosts = payload.posts || [];
+
+        if (typeof payload.totalPosts === 'number') {
+          setTotalPosts(payload.totalPosts);
         }
 
         setPosts(prevPosts => {

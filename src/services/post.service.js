@@ -11,16 +11,26 @@ const postApi = {
 
   profilePosts: async (username, page = 1, limit = 10) => {
     return await axiosClient.get(
-      `/posts/${username}?page=${page}&limit=${limit}`
+      `/posts/user/${username}?page=${page}&limit=${limit}`
     );
   },
 
   likePost: async postId => {
-    return await axiosClient.post(`/posts/${postId}/like`);
+    return await axiosClient.post(`/interaction/post/like/${postId}`);
   },
 
   unlikePost: async postId => {
-    return await axiosClient.post(`/posts/${postId}/unlike`);
+    return await axiosClient.post(`/interaction/post/unlike/${postId}`);
+  },
+
+  getCommentsByPostId: async (postId, page, limit) => {
+    return await axiosClient.get(
+      `/comments/post/${postId}?page=${page}&limit=${limit}`
+    );
+  },
+
+  addComment: async (postId, content) => {
+    return await axiosClient.post(`/comments/post/${postId}`, { content });
   },
 };
 

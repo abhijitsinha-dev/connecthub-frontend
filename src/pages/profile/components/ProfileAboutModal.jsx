@@ -7,9 +7,21 @@ import {
   BiCalendar,
   BiX,
 } from 'react-icons/bi';
+import useScrollLock from '../../../hooks/useScrollLock';
 
 const ProfileAboutModal = ({ isOpen, userData, onClose }) => {
+  useScrollLock(isOpen);
   if (!isOpen) return null;
+
+  const dobDate = userData?.dateOfBirth ? new Date(userData.dateOfBirth) : null;
+  const formattedDateOfBirth =
+    dobDate && !Number.isNaN(dobDate.getTime())
+      ? dobDate.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })
+      : 'Not provided';
 
   return createPortal(
     <div
@@ -58,7 +70,12 @@ const ProfileAboutModal = ({ isOpen, userData, onClose }) => {
             </div>
             <div>
               <p className="text-sm text-text-secondary">Gender</p>
-              <p className="text-text-primary font-medium">{userData.gender ? userData.gender.charAt(0).toUpperCase() + userData.gender.slice(1) : 'Not specified'}</p>
+              <p className="text-text-primary font-medium">
+                {userData.gender
+                  ? userData.gender.charAt(0).toUpperCase() +
+                    userData.gender.slice(1)
+                  : 'Not specified'}
+              </p>
             </div>
           </div>
 
@@ -69,11 +86,7 @@ const ProfileAboutModal = ({ isOpen, userData, onClose }) => {
             <div>
               <p className="text-sm text-text-secondary">Date of Birth</p>
               <p className="text-text-primary font-medium">
-                {new Date(userData.dateOfBirth).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
+                {formattedDateOfBirth}
               </p>
             </div>
           </div>
