@@ -1,45 +1,47 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BiArrowBack } from 'react-icons/bi';
 import { BiX } from 'react-icons/bi';
 import { useUIContext } from '../../context/UIContext';
+import userApi from '../../services/user.service';
+import { sortUsersByScoreDesc } from '../../utils/helpers';
+import { DEFAULT_PROFILE_PICTURE } from '../../utils/constants';
 
 const Search = () => {
   const { isSidebarCollapsed, isSearchOpen, setIsSearchOpen } = useUIContext();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Mock user data - Replace with API call to backend
-  const mockUsers = [
-    { id: 1, fullName: 'John Doe', username: 'johndoe', avatar: '👨' },
-    { id: 2, fullName: 'Jane Smith', username: 'janesmith', avatar: '👩' },
-    { id: 3, fullName: 'Alice Johnson', username: 'alicejohn', avatar: '👩‍🦰' },
-    { id: 4, fullName: 'Bob Wilson', username: 'bobwilson', avatar: '👨‍💼' },
-    { id: 5, fullName: 'Emma Davis', username: 'emmadavis', avatar: '👩‍🎓' },
-  ];
-
-  // Search handler
-  const handleSearch = query => {
-    setSearchQuery(query);
-
-    if (query.trim() === '') {
+  // Debounced search logic
+  useEffect(() => {
+    if (!searchQuery.trim()) {
       setSearchResults([]);
+      setIsLoading(false);
       return;
     }
 
     setIsLoading(true);
 
-    // Simulate API call delay
-    setTimeout(() => {
-      const results = mockUsers.filter(
-        user =>
-          user.fullName.toLowerCase().includes(query.toLowerCase()) ||
-          user.username.toLowerCase().includes(query.toLowerCase())
-      );
-      setSearchResults(results);
-      setIsLoading(false);
-    }, 300);
-  };
+    const debounceTimer = setTimeout(async () => {
+      try {
+        const response = await userApi.searchUsers(searchQuery);
+        // Based on provided schema: response.data.data.users
+        const users =
+          response?.data?.data?.users || response?.data?.users || [];
+        const sortedUsers = sortUsersByScoreDesc(users);
+        setSearchResults(sortedUsers);
+      } catch (error) {
+        console.error('Failed to search users:', error);
+        setSearchResults([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery]);
 
   const handleClose = () => {
     setIsSearchOpen(false);
@@ -48,8 +50,7 @@ const Search = () => {
   };
 
   const handleUserClick = (userId, username) => {
-    // Handle user click - you can add navigation or other logic here
-    console.log(`Clicked user: ${username}`);
+    navigate(`/profile/${username}`);
     handleClose();
   };
 
@@ -90,7 +91,7 @@ const Search = () => {
               type="text"
               placeholder="Search by name or username..."
               value={searchQuery}
-              onChange={e => handleSearch(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
               className="w-full px-4 py-2 pr-10 rounded-lg bg-bg-secondary text-text-primary placeholder-text-secondary border border-bg-secondary focus:border-brand-primary focus:outline-none transition-colors"
               autoFocus
             />
@@ -98,7 +99,7 @@ const Search = () => {
             {searchQuery.trim() !== '' && (
               <button
                 type="button"
-                onClick={() => handleSearch('')}
+                onClick={() => setSearchQuery('')}
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md text-text-secondary hover:text-text-primary hover:bg-bg-primary/60 transition-colors"
                 title="Clear search"
                 aria-label="Clear search"
@@ -132,10 +133,15 @@ const Search = () => {
                   className="p-3 rounded-lg bg-bg-secondary hover:bg-brand-primary/10 cursor-pointer transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="text-2xl">{user.avatar}</div>
+                    <img
+                      src={user.avatar?.url || DEFAULT_PROFILE_PICTURE}
+                      alt={user.fullName}
+                      className="w-10 h-10 rounded-full object-cover shrink-0 border border-border-primary"
+                      draggable="false"
+                    />
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-text-primary truncate">
-                        {user.fullName}
+                        {user.fullName || user.username}
                       </p>
                       <p className="text-sm text-text-secondary truncate">
                         @{user.username}

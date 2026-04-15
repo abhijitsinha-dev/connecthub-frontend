@@ -21,6 +21,7 @@ const Sidebar = () => {
   const {
     isSidebarCollapsed: isCollapsed,
     setIsSidebarCollapsed: setIsCollapsed,
+    isSearchOpen,
     setIsSearchOpen,
   } = useUIContext();
   const { theme, toggleTheme } = useTheme();
@@ -42,12 +43,14 @@ const Sidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
 
-  const navLinkClasses = ({ isActive }) =>
+  const getNavLinkClasses = (isActive, forceActive = false) =>
     `flex items-center ${isCollapsed ? 'justify-center px-0' : 'justify-start px-4'} w-full py-3 rounded-lg font-medium transition-all ${
-      isActive
+      (isActive && !isSearchOpen) || forceActive
         ? 'bg-brand-primary/10 text-brand-primary font-semibold'
         : 'text-text-secondary hover:bg-bg-secondary hover:text-text-primary'
     }`;
+
+  const navLinkClasses = ({ isActive }) => getNavLinkClasses(isActive);
 
   return (
     <aside
@@ -80,6 +83,7 @@ const Sidebar = () => {
             to="/home"
             className={navLinkClasses}
             title={isCollapsed ? 'Home' : ''}
+            onClick={() => setIsSearchOpen(false)}
           >
             <BiHomeAlt className="text-[24px] min-w-6" />
             {!isCollapsed && (
@@ -89,7 +93,7 @@ const Sidebar = () => {
 
           <NavLink
             to="/search"
-            className={navLinkClasses}
+            className={() => getNavLinkClasses(false, isSearchOpen)}
             title={isCollapsed ? 'Search' : ''}
             onClick={e => {
               e.preventDefault();
@@ -106,6 +110,7 @@ const Sidebar = () => {
             to="/create"
             className={navLinkClasses}
             title={isCollapsed ? 'Create' : ''}
+            onClick={() => setIsSearchOpen(false)}
           >
             <BiPlusCircle className="text-[24px] min-w-6" />
             {!isCollapsed && (
@@ -117,6 +122,7 @@ const Sidebar = () => {
             to="/messenger"
             className={navLinkClasses}
             title={isCollapsed ? 'Messenger' : ''}
+            onClick={() => setIsSearchOpen(false)}
           >
             <BiMessageRoundedDots className="text-[24px] min-w-6" />
             {!isCollapsed && (
@@ -128,6 +134,7 @@ const Sidebar = () => {
             to={`/profile/${user?.username}`}
             className={navLinkClasses}
             title={isCollapsed ? 'Profile' : ''}
+            onClick={() => setIsSearchOpen(false)}
           >
             <BiUser className="text-[24px] min-w-6" />
             {!isCollapsed && (

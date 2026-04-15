@@ -42,3 +42,18 @@ export const sortPostsByCreatedAtDesc = posts => {
     return dateB - dateA;
   });
 };
+/**
+ * Sorts an array of users in descending order based on their score.
+ *
+ * @param {Array} users - The list of users to sort
+ * @returns {Array} A new array of users sorted by score (highest to lowest)
+ */
+export const sortUsersByScoreDesc = users => {
+  if (!users || !Array.isArray(users)) return [];
+
+  return [...users].sort((a, b) => {
+    const scoreA = typeof a.score === 'number' ? a.score : 0;
+    const scoreB = typeof b.score === 'number' ? b.score : 0;
+    return scoreB - scoreA;
+  });
+};

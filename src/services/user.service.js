@@ -16,6 +16,10 @@ const userApi = {
   unfollowUser: async targetUserId => {
     return await axiosClient.post(`/users/${targetUserId}/unfollow`);
   },
+
+  searchUsers: async query => {
+    return await axiosClient.get(`/users/search?q=${query}`);
+  },
 };
 
 export default userApi;
