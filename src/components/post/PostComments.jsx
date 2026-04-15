@@ -28,6 +28,7 @@ const PostComments = ({ comment, innerRef }) => {
           src={avatarUrl}
           alt={`${fullName} avatar`}
           className="w-8 h-8 rounded-full object-cover border border-border-primary hover:opacity-80 transition-opacity"
+          draggable="false"
         />
       </Link>
 

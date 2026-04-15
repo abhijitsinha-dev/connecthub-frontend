@@ -120,6 +120,7 @@ const MediaPicker = ({
                 src={mediaPreview}
                 alt="Preview"
                 className="w-full h-full object-contain rounded-lg drop-shadow-sm"
+                draggable="false"
               />
             ) : (
               <div

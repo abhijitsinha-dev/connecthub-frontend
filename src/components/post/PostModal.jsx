@@ -215,6 +215,7 @@ const PostModal = ({
               src={post.media.url}
               alt="Post media"
               className="w-full h-full object-contain"
+              draggable="false"
             />
           </div>
         )}

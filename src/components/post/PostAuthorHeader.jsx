@@ -16,6 +16,7 @@ const PostAuthorHeader = ({ post, avatarClassName = 'w-11 h-11' }) => {
             src={avatarUrl}
             alt={`${post.user?.fullName || post.user?.username || 'User'} avatar`}
             className={`${avatarClassName} rounded-full object-cover border border-border-primary hover:opacity-80 transition-opacity`}
+            draggable="false"
           />
         </Link>
 

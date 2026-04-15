@@ -106,6 +106,7 @@ const SmallPost = ({ post, userData, innerRef }) => {
             src={userData.profilePicture}
             alt="Avatar"
             className="w-10 h-10 rounded-full object-cover border border-border-primary hover:opacity-80 transition-opacity"
+            draggable="false"
           />
         </Link>
         <div>
@@ -144,6 +145,7 @@ const SmallPost = ({ post, userData, innerRef }) => {
             src={post.media.url}
             alt="Post media"
             className="w-full h-full object-contain md:aspect-video md:max-h-100"
+            draggable="false"
           />
         </button>
       )}

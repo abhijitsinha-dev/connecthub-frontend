@@ -109,6 +109,7 @@ const Post = forwardRef(({ post }, ref) => {
               src={post.media.url}
               alt="Post media"
               className="w-full h-auto max-h-[60vh] md:max-h-100 object-contain"
+              draggable="false"
             />
           </button>
         )}

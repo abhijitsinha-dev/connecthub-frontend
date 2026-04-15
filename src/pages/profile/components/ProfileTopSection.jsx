@@ -7,6 +7,7 @@ import {
   BiCheck,
 } from 'react-icons/bi';
 import ProfileImageActionModal from './ProfileImageActionModal';
+import ProfileImageViewerModal from './ProfileImageViewerModal';
 import useImagePicker from '../hooks/useImagePicker';
 
 import {
@@ -24,6 +25,21 @@ const ProfileTopSection = ({
   onToggleFollow,
 }) => {
   const [isFollowing, setIsFollowing] = useState(false);
+  const [viewerState, setViewerState] = useState({
+    isOpen: false,
+    imageUrl: '',
+  });
+
+  const handleViewImage = imageUrl => {
+    setViewerState({
+      isOpen: true,
+      imageUrl: imageUrl,
+    });
+  };
+
+  const closeViewer = () => {
+    setViewerState(prev => ({ ...prev, isOpen: false }));
+  };
 
   useEffect(() => {
     if (userData?.followers && loggedInUserId) {
@@ -67,15 +83,27 @@ const ProfileTopSection = ({
         />
         <button
           type="button"
-          onClick={isOwnProfile ? coverPicker.handleClick : undefined}
-          className={`block w-full h-full relative ${isOwnProfile ? 'cursor-pointer' : 'cursor-default'}`}
-          aria-label={isOwnProfile ? 'Update cover picture' : 'Cover picture'}
-          disabled={!isOwnProfile}
+          onClick={
+            isOwnProfile
+              ? coverPicker.handleClick
+              : hasCustomCoverPhoto
+                ? () => handleViewImage(userData.coverPhoto)
+                : undefined
+          }
+          className={`block w-full h-full relative ${isOwnProfile || hasCustomCoverPhoto ? 'cursor-pointer' : 'cursor-default'}`}
+          aria-label={
+            isOwnProfile
+              ? 'Update cover picture'
+              : hasCustomCoverPhoto
+                ? 'View cover picture'
+                : 'Cover picture'
+          }
         >
           <img
             src={userData.coverPhoto}
             alt="Cover"
             className={`w-full h-full object-cover transition-opacity duration-200 ${isOwnProfile ? 'group-hover:opacity-90' : ''}`}
+            draggable="false"
           />
           {isOwnProfile && (
             <>
@@ -104,18 +132,28 @@ const ProfileTopSection = ({
               />
               <button
                 type="button"
-                onClick={isOwnProfile ? avatarPicker.handleClick : undefined}
-                className={`block ${isOwnProfile ? 'cursor-pointer' : 'cursor-default'}`}
-                aria-label={
-                  isOwnProfile ? 'Update profile picture' : 'Profile picture'
+                onClick={
+                  isOwnProfile
+                    ? avatarPicker.handleClick
+                    : hasCustomProfilePicture
+                      ? () => handleViewImage(userData.profilePicture)
+                      : undefined
                 }
-                disabled={!isOwnProfile}
+                className={`block ${isOwnProfile || hasCustomProfilePicture ? 'cursor-pointer' : 'cursor-default'}`}
+                aria-label={
+                  isOwnProfile
+                    ? 'Update profile picture'
+                    : hasCustomProfilePicture
+                      ? 'View profile picture'
+                      : 'Profile picture'
+                }
               >
                 <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-bg-primary overflow-hidden shadow-lg bg-bg-secondary relative">
                   <img
                     src={userData.profilePicture}
                     alt={userData.fullName}
                     className={`w-full h-full object-cover transition-opacity duration-200 ${isOwnProfile ? 'group-hover:opacity-90' : ''}`}
+                    draggable="false"
                   />
                   {isOwnProfile && (
                     <>
@@ -239,6 +277,12 @@ const ProfileTopSection = ({
         onRemove={coverPicker.handleRemove}
         changeLabel="Change Cover Picture"
         removeLabel="Remove Cover Picture"
+      />
+
+      <ProfileImageViewerModal
+        imageUrl={viewerState.imageUrl}
+        isOpen={viewerState.isOpen}
+        onClose={closeViewer}
       />
     </div>
   );

@@ -165,23 +165,23 @@ const Messenger = () => {
     }
 
     return CONVERSATIONS.filter(
-      (conversation) =>
+      conversation =>
         conversation.name.toLowerCase().includes(normalizedSearch) ||
-        conversation.handle.toLowerCase().includes(normalizedSearch),
+        conversation.handle.toLowerCase().includes(normalizedSearch)
     );
   }, [searchTerm]);
 
   // Resolve active conversation/thread with safe fallback.
   const activeConversation =
     CONVERSATIONS.find(
-      (conversation) => conversation.id === activeConversationId,
+      conversation => conversation.id === activeConversationId
     ) || CONVERSATIONS[0];
 
   const activeMessages =
     MESSAGES_BY_CONVERSATION[activeConversation.id] ||
     MESSAGES_BY_CONVERSATION[1];
 
-  const handleSubmitMessage = (event) => {
+  const handleSubmitMessage = event => {
     event.preventDefault();
 
     if (!messageDraft.trim()) {
@@ -215,7 +215,7 @@ const Messenger = () => {
                 <input
                   type="text"
                   value={searchTerm}
-                  onChange={(event) => setSearchTerm(event.target.value)}
+                  onChange={event => setSearchTerm(event.target.value)}
                   placeholder="Search messages"
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-bg-secondary text-text-primary placeholder:text-text-secondary/80 border border-transparent focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
                 />
@@ -223,7 +223,7 @@ const Messenger = () => {
             </div>
 
             <div className="max-h-[34dvh] lg:max-h-[calc(100dvh-12rem)] overflow-y-auto p-2 sm:p-3 space-y-1.5">
-              {filteredConversations.map((conversation) => {
+              {filteredConversations.map(conversation => {
                 const isActive = conversation.id === activeConversation.id;
 
                 return (
@@ -245,6 +245,7 @@ const Messenger = () => {
                           src={conversation.avatar}
                           alt={`${conversation.name} avatar`}
                           className="w-12 h-12 rounded-full object-cover"
+                          draggable="false"
                         />
                         {conversation.online && (
                           <span className="absolute -right-0.5 -bottom-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-bg-primary" />
@@ -283,7 +284,7 @@ const Messenger = () => {
             <header className="px-4 sm:px-6 py-4 border-b border-black/5 dark:border-white/10 flex items-center justify-between gap-3">
               <button
                 type="button"
-                onClick={() => setIsDetailsOpen((prev) => !prev)}
+                onClick={() => setIsDetailsOpen(prev => !prev)}
                 className="flex items-center gap-3 min-w-0 rounded-xl pr-2 hover:bg-bg-secondary/70 transition-colors"
                 title="Toggle conversation details"
               >
@@ -291,6 +292,7 @@ const Messenger = () => {
                   src={activeConversation.avatar}
                   alt={`${activeConversation.name} avatar`}
                   className="w-11 h-11 rounded-full object-cover"
+                  draggable="false"
                 />
                 <div className="min-w-0 text-left">
                   <h2 className="font-semibold text-text-primary truncate">
@@ -323,7 +325,7 @@ const Messenger = () => {
             </header>
 
             <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-5 sm:py-6 space-y-3">
-              {activeMessages.map((message) => {
+              {activeMessages.map(message => {
                 const isMe = message.sender === 'me';
 
                 return (
@@ -374,7 +376,7 @@ const Messenger = () => {
                 <input
                   type="text"
                   value={messageDraft}
-                  onChange={(event) => setMessageDraft(event.target.value)}
+                  onChange={event => setMessageDraft(event.target.value)}
                   placeholder={`Message ${activeConversation.name}`}
                   className="flex-1 bg-transparent text-text-primary placeholder:text-text-secondary/80 focus:outline-none"
                 />
@@ -427,6 +429,7 @@ const Messenger = () => {
                 src={activeConversation.avatar}
                 alt={`${activeConversation.name} profile`}
                 className="w-20 h-20 rounded-full object-cover mx-auto"
+                draggable="false"
               />
               <h3 className="mt-3 text-lg font-bold text-text-primary">
                 {activeConversation.name}
@@ -445,12 +448,13 @@ const Messenger = () => {
                   Shared Media
                 </h4>
                 <div className="grid grid-cols-2 gap-2">
-                  {SHARED_MEDIA.map((mediaUrl) => (
+                  {SHARED_MEDIA.map(mediaUrl => (
                     <img
                       key={mediaUrl}
                       src={mediaUrl}
                       alt="Shared media"
                       className="w-full aspect-square rounded-xl object-cover"
+                      draggable="false"
                     />
                   ))}
                 </div>

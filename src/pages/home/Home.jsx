@@ -145,6 +145,7 @@ const Home = () => {
                           src={user.avatar}
                           alt={`${user.fullName} avatar`}
                           className="w-11 h-11 rounded-full object-cover border border-border-primary shrink-0"
+                          draggable="false"
                         />
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-text-primary truncate">

@@ -281,6 +281,7 @@ const MobileCommentsModal = ({ isOpen, onClose, post }) => {
               src={user?.avatar?.url}
               alt="Your avatar"
               className="w-9 h-9 rounded-full object-cover shrink-0 border border-border-primary"
+              draggable="false"
             />
 
             <div className="flex-1 bg-bg-secondary rounded-full flex items-center px-4 py-2.5 border border-border-primary/70">
