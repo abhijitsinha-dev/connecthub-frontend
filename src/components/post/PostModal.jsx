@@ -318,7 +318,7 @@ const PostModal = ({
               />
               <button
                 type="submit"
-                className="text-brand-primary font-semibold text-sm disabled:opacity-50 min-w-[40px]"
+                className="text-brand-primary font-semibold text-sm disabled:opacity-50 min-w-10"
                 disabled={!commentText.trim() || isSubmittingComment}
               >
                 {isSubmittingComment ? '...' : 'Post'}

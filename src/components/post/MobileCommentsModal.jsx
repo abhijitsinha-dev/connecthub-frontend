@@ -28,7 +28,6 @@ const MobileCommentsModal = ({ isOpen, onClose, post }) => {
   const commentsObserverRef = useRef(null);
   const [commentText, setCommentText] = useState('');
   const [comments, setComments] = useState([]);
-  const [commentsCount, setCommentsCount] = useState(0);
   const [commentsPage, setCommentsPage] = useState(1);
   const [hasMoreComments, setHasMoreComments] = useState(true);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
@@ -67,7 +66,6 @@ const MobileCommentsModal = ({ isOpen, onClose, post }) => {
     let isActive = true;
 
     setComments([]);
-    setCommentsCount(post?.commentsCount ?? 0);
     setCommentsPage(1);
     setHasMoreComments(true);
 
@@ -86,7 +84,6 @@ const MobileCommentsModal = ({ isOpen, onClose, post }) => {
         const fetchedComments = payload.comments || [];
 
         setComments(fetchedComments);
-        setCommentsCount(payload.commentsCount ?? fetchedComments.length);
         setHasMoreComments(fetchedComments.length === COMMENTS_PAGE_SIZE);
       } catch (error) {
         console.error('Failed to fetch mobile post comments', error);
@@ -130,7 +127,6 @@ const MobileCommentsModal = ({ isOpen, onClose, post }) => {
           return [...prevComments, ...uniqueComments];
         });
 
-        setCommentsCount(payload.commentsCount ?? post?.commentsCount ?? 0);
         setHasMoreComments(fetchedComments.length === COMMENTS_PAGE_SIZE);
       } catch (error) {
         console.error('Failed to fetch more mobile comments', error);
@@ -188,7 +184,6 @@ const MobileCommentsModal = ({ isOpen, onClose, post }) => {
         };
 
         setComments(prev => [enrichedComment, ...prev]);
-        setCommentsCount(prev => prev + 1);
         setCommentText('');
 
         if (commentsScrollRef.current) {
@@ -213,7 +208,7 @@ const MobileCommentsModal = ({ isOpen, onClose, post }) => {
       onClick={onClose}
     >
       <div
-        className="flex flex-col w-full h-[100dvh] sm:h-[800px] sm:max-w-md bg-bg-primary rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl transition-transform duration-200 ease-out"
+        className="flex flex-col w-full h-dvh sm:h-200 sm:max-w-md bg-bg-primary rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl transition-transform duration-200 ease-out"
         style={{
           transform: `translateY(${dragOffset}px)`,
         }}
