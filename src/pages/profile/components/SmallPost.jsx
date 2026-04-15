@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BiHeart, BiSolidHeart, BiMessageRounded } from 'react-icons/bi';
 import { formatDate } from '../../../utils/helpers';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
 import postApi from '../../../services/post.service';
 import PostModal from '../../../components/post/PostModal';
+import MobileCommentsModal from '../../../components/post/MobileCommentsModal';
 
 const SmallPost = ({ post, userData, innerRef }) => {
   const { user } = useAuth();
@@ -12,7 +13,39 @@ const SmallPost = ({ post, userData, innerRef }) => {
   const [isLiked, setIsLiked] = useState(post?.isLikedByCurrentUser ?? false);
   const [likesCount, setLikesCount] = useState(post?.likesCount ?? 0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMobileCommentsModalOpen, setIsMobileCommentsModalOpen] =
+    useState(false);
+  const [isMobileScreen, setIsMobileScreen] = useState(
+    () => window.innerWidth < 640
+  );
+
   const commentsCount = post?.commentsCount ?? 0;
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 639px)');
+    const handleScreenChange = event => {
+      setIsMobileScreen(event.matches);
+      if (!event.matches) {
+        setIsMobileCommentsModalOpen(false);
+      }
+    };
+
+    setIsMobileScreen(mediaQuery.matches);
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleScreenChange);
+    } else {
+      mediaQuery.addListener(handleScreenChange);
+    }
+
+    return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener('change', handleScreenChange);
+      } else {
+        mediaQuery.removeListener(handleScreenChange);
+      }
+    };
+  }, []);
 
   const handleLikeToggle = async e => {
     e.preventDefault();
@@ -37,6 +70,19 @@ const SmallPost = ({ post, userData, innerRef }) => {
     }
   };
 
+  const handleMediaClick = () => {
+    if (isMobileScreen) return;
+    setIsModalOpen(true);
+  };
+
+  const handleCommentsClick = () => {
+    if (isMobileScreen) {
+      setIsMobileCommentsModalOpen(true);
+      return;
+    }
+    setIsModalOpen(true);
+  };
+
   const enrichedPost = {
     ...post,
     user: {
@@ -52,7 +98,7 @@ const SmallPost = ({ post, userData, innerRef }) => {
   return (
     <div
       ref={innerRef}
-      className="bg-bg-primary rounded-2xl shadow-sm border border-border-primary p-5 flex flex-col hover:shadow-md transition-shadow"
+      className="bg-bg-primary rounded-2xl shadow-sm border border-border-primary p-5 flex flex-col hover:shadow-md transition-shadow mx-4 sm:mx-0"
     >
       <div className="flex items-center gap-3 mb-4">
         <Link to={`/profile/${userData.username}`} className="shrink-0">
@@ -91,13 +137,13 @@ const SmallPost = ({ post, userData, innerRef }) => {
       {post.media?.type === 'image' && (
         <button
           type="button"
-          onClick={() => setIsModalOpen(true)}
+          onClick={handleMediaClick}
           className="mb-4 rounded-xl overflow-hidden bg-bg-secondary w-full hover:opacity-90 transition-opacity cursor-pointer block"
         >
           <img
             src={post.media.url}
             alt="Post media"
-            className="w-full h-full object-contain aspect-video"
+            className="w-full h-full object-contain md:aspect-video md:max-h-100"
           />
         </button>
       )}
@@ -128,7 +174,7 @@ const SmallPost = ({ post, userData, innerRef }) => {
           </span>
         </button>
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={handleCommentsClick}
           className="flex items-center gap-2 text-text-secondary hover:text-brand-primary transition-colors group"
         >
           <BiMessageRounded className="text-xl group-hover:scale-110 transition-transform" />
@@ -143,6 +189,12 @@ const SmallPost = ({ post, userData, innerRef }) => {
         isLiked={isLiked}
         likesCount={likesCount}
         onToggleLike={handleLikeToggle}
+      />
+
+      <MobileCommentsModal
+        isOpen={isMobileCommentsModalOpen}
+        onClose={() => setIsMobileCommentsModalOpen(false)}
+        post={enrichedPost}
       />
     </div>
   );
