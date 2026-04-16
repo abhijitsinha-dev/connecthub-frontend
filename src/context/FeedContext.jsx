@@ -17,6 +17,8 @@ export const FeedProvider = ({ children }) => {
   const [excludedPostIds, setExcludedPostIds] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [isAutoplayPausedByUser, setIsAutoplayPausedByUser] = useState(false);
+  const [activeVideoId, setActiveVideoId] = useState(null);
 
   // Use a ref to track if initial fetch has been done to prevent strict mode double-fetching issues if desired
   const isInitialLoadDone = useRef(false);
@@ -73,7 +75,17 @@ export const FeedProvider = ({ children }) => {
 
   return (
     <FeedContext.Provider
-      value={{ posts, fetchFeed, loading, hasMore, isInitialLoadDone }}
+      value={{
+        posts,
+        fetchFeed,
+        loading,
+        hasMore,
+        isInitialLoadDone,
+        isAutoplayPausedByUser,
+        setIsAutoplayPausedByUser,
+        activeVideoId,
+        setActiveVideoId,
+      }}
     >
       {children}
     </FeedContext.Provider>
