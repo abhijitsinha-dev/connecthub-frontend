@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { BiHeart, BiSolidHeart, BiMessageRounded, BiX } from 'react-icons/bi';
+import {
+  BiHeart,
+  BiSolidHeart,
+  BiMessageRounded,
+  BiX,
+  BiPlayCircle,
+  BiPauseCircle,
+} from 'react-icons/bi';
 import PostAuthorHeader from './PostAuthorHeader';
 import PostComments from './PostComments';
 import postApi from '../../services/post.service';
@@ -41,6 +48,8 @@ const PostModal = ({
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const { user } = useAuth();
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const videoRef = useRef(null);
 
   useEffect(() => {
     if (!isOpen || !post?.id) return undefined;
@@ -193,6 +202,19 @@ const PostModal = ({
     }
   };
 
+  const toggleVideoPlay = e => {
+    e.stopPropagation();
+    if (videoRef.current) {
+      if (videoRef.current.paused) {
+        videoRef.current.play();
+        setIsPlaying(true);
+      } else {
+        videoRef.current.pause();
+        setIsPlaying(false);
+      }
+    }
+  };
+
   const hasMedia = Boolean(post.media?.url);
   const modalWidthClass = hasMedia
     ? 'w-[90vw] max-w-7xl'
@@ -210,13 +232,51 @@ const PostModal = ({
         onClick={e => e.stopPropagation()}
       >
         {hasMedia && (
-          <div className="w-1/2 bg-bg-secondary dark:bg-bg-primary flex items-center justify-center">
-            <img
-              src={post.media.url}
-              alt="Post media"
-              className="w-full h-full object-contain"
-              draggable="false"
-            />
+          <div className="w-1/2 bg-bg-secondary dark:bg-bg-primary flex items-center justify-center relative overflow-hidden group/video">
+            {post.media.type === 'video' ||
+            post.media.url.match(/\.(mp4|webm|ogg)$/i) ? (
+              <div
+                className="w-full h-full flex items-center justify-center cursor-pointer"
+                onClick={toggleVideoPlay}
+              >
+                <video
+                  ref={videoRef}
+                  src={post.media.url}
+                  className="w-full h-full object-contain"
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                  onEnded={() => setIsPlaying(false)}
+                  playsInline
+                />
+                {/* Play/Pause Overlay */}
+                <div
+                  className={`absolute inset-0 flex items-center justify-center bg-black/20 transition-opacity duration-300 ${
+                    isPlaying
+                      ? 'opacity-0 group-hover/video:opacity-100'
+                      : 'opacity-100'
+                  }`}
+                >
+                  {isPlaying ? (
+                    <BiPauseCircle
+                      className="text-white drop-shadow-2xl"
+                      size={80}
+                    />
+                  ) : (
+                    <BiPlayCircle
+                      className="text-white drop-shadow-2xl"
+                      size={80}
+                    />
+                  )}
+                </div>
+              </div>
+            ) : (
+              <img
+                src={post.media.url}
+                alt="Post media"
+                className="w-full h-full object-contain"
+                draggable="false"
+              />
+            )}
           </div>
         )}
 

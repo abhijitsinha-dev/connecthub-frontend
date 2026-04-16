@@ -32,6 +32,12 @@ const postApi = {
   addComment: async (postId, content) => {
     return await axiosClient.post(`/comments/post/${postId}`, { content });
   },
+
+  getLikesByPostId: async (postId, page, limit) => {
+    return await axiosClient.get(
+      `/interaction/post/likers/${postId}?page=${page}&limit=${limit}`
+    );
+  },
 };
 
 export default postApi;

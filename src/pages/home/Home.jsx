@@ -116,8 +116,14 @@ const Home = () => {
               )}
 
               {!loading && posts.length === 0 && (
-                <div className="text-center py-12 text-text-secondary">
-                  No posts to show yet. Follow someone or check back later!
+                <div className="flex flex-col items-center justify-center py-24 text-text-secondary animate-fade-in">
+                  <p className="text-xl font-semibold text-text-primary mb-2">
+                    No posts found
+                  </p>
+                  <p className="max-w-md text-center">
+                    Follow more people or check back later to discover new
+                    content in your feed.
+                  </p>
                 </div>
               )}
             </div>

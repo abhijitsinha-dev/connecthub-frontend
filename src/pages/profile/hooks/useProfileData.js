@@ -17,7 +17,7 @@ const useProfileData = () => {
     try {
       setIsFetching(true);
       const response = await userApi.getUserByUsername(username);
-      const fetchedUser = response.data.user;
+      const fetchedUser = response.data?.user || response.data?.data?.user;
 
       if (user?.username === fetchedUser.username) {
         handleAuthSuccess(fetchedUser);
@@ -35,11 +35,10 @@ const useProfileData = () => {
         gender: fetchedUser.gender || 'Not specified',
         dateOfBirth: fetchedUser.dateOfBirth || null,
         address: fetchedUser.address || 'Not provided',
-        followers: fetchedUser.followers || [],
-        following: fetchedUser.following || [],
-        followersCount: fetchedUser.followers?.length || 0,
-        followingCount: fetchedUser.following?.length || 0,
-        postsCount: 0,
+        followersCount: fetchedUser.followersCount || 0,
+        followingCount: fetchedUser.followingCount || 0,
+        postsCount: fetchedUser.postsCount || 0,
+        isFollowedByCurrentUser: fetchedUser.isFollowedByCurrentUser,
       });
     } catch (error) {
       console.error('Failed to fetch user profile:', error);
@@ -170,14 +169,14 @@ const useProfileData = () => {
         await userApi.unfollowUser(userData.id);
         setUserData(prev => ({
           ...prev,
-          followers: prev.followers.filter(id => id !== user.id),
+          isFollowedByCurrentUser: false,
           followersCount: Math.max(0, prev.followersCount - 1),
         }));
       } else {
         await userApi.followUser(userData.id);
         setUserData(prev => ({
           ...prev,
-          followers: [...prev.followers, user.id],
+          isFollowedByCurrentUser: true,
           followersCount: prev.followersCount + 1,
         }));
       }
@@ -195,6 +194,7 @@ const useProfileData = () => {
     userData,
     isFetching,
     isUploadingImage,
+    isTogglingFollow,
     actions: {
       handleImageChange,
       handleRemoveProfilePicture,

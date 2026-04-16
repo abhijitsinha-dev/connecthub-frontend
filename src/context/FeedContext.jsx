@@ -38,6 +38,9 @@ export const FeedProvider = ({ children }) => {
 
         if (newPosts.length === 0) {
           setHasMore(false);
+          if (isInitial) {
+            isInitialLoadDone.current = true;
+          }
         } else {
           const newIds = newPosts.map(post => post.id);
 

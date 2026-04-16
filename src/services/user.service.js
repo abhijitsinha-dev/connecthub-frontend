@@ -10,11 +10,19 @@ const userApi = {
   },
 
   followUser: async targetUserId => {
-    return await axiosClient.post(`/users/${targetUserId}/follow`);
+    return await axiosClient.post(`/follows/${targetUserId}/follow`);
   },
 
   unfollowUser: async targetUserId => {
-    return await axiosClient.post(`/users/${targetUserId}/unfollow`);
+    return await axiosClient.post(`/follows/${targetUserId}/unfollow`);
+  },
+
+  getFollowers: async userId => {
+    return await axiosClient.get(`/follows/${userId}/followers`);
+  },
+
+  getFollowing: async userId => {
+    return await axiosClient.get(`/follows/${userId}/following`);
   },
 
   searchUsers: async query => {

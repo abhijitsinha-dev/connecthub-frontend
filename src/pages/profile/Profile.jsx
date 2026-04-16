@@ -3,7 +3,9 @@ import ProfileTopSection from './components/ProfileTopSection';
 import ProfilePostsSection from './components/ProfilePostsSection';
 import ProfileAboutModal from './components/ProfileAboutModal';
 import ProfileEditModal from './components/ProfileEditModal';
-import { useParams } from 'react-router-dom';
+import UserListModal from '../../components/UserListModal';
+import { useParams, useNavigate } from 'react-router-dom';
+import userApi from '../../services/user.service';
 import { useAuth } from '../../context/AuthContext';
 import useProfileData from './hooks/useProfileData';
 import useProfilePosts from './hooks/useProfilePosts';
@@ -13,14 +15,15 @@ import {
 } from '../../utils/constants';
 
 const Profile = () => {
+  const navigate = useNavigate();
   const { username } = useParams();
   const { user } = useAuth();
-  const { userData, isFetching, isUploadingImage, actions } = useProfileData();
+  const { userData, isFetching, isUploadingImage, isTogglingFollow, actions } =
+    useProfileData();
   const {
     posts,
     setPage,
     hasMore,
-    totalPosts,
     isLoading: isLoadingPosts,
   } = useProfilePosts();
 
@@ -30,6 +33,46 @@ const Profile = () => {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
+
+  // User List Modal State
+  const [userListModal, setUserListModal] = useState({
+    isOpen: false,
+    title: '',
+    users: [],
+    isLoading: false,
+  });
+
+  const handleOpenUserList = async type => {
+    const title = type === 'followers' ? 'Followers' : 'Following';
+    setUserListModal({
+      isOpen: true,
+      title,
+      users: [],
+      isLoading: true,
+    });
+
+    try {
+      const response =
+        type === 'followers'
+          ? await userApi.getFollowers(userData.id)
+          : await userApi.getFollowing(userData.id);
+
+      const listKey = type === 'followers' ? 'followers' : 'following';
+      setUserListModal(prev => ({
+        ...prev,
+        users: response.data[listKey] || [],
+        isLoading: false,
+      }));
+    } catch (error) {
+      console.error(`Error fetching ${type}:`, error);
+      setUserListModal(prev => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  const handleModalUserClick = clickedUser => {
+    setUserListModal(prev => ({ ...prev, isOpen: false }));
+    navigate(`/profile/${clickedUser.username}`);
+  };
 
   const observer = useRef();
   const lastPostElementRef = useCallback(
@@ -58,7 +101,6 @@ const Profile = () => {
 
   const resolvedUserData = {
     ...userData,
-    postsCount: totalPosts,
     profilePicture: userData.profilePicture || DEFAULT_PROFILE_PICTURE,
     coverPhoto: userData.coverPhoto || DEFAULT_COVER_PHOTO,
     dateOfBirth: userData.dateOfBirth || null,
@@ -77,6 +119,7 @@ const Profile = () => {
         isOwnProfile={isOwnProfile}
         loggedInUserId={user?.id}
         onToggleFollow={actions.handleToggleFollow}
+        isTogglingFollow={isTogglingFollow}
         imageActions={{
           onChange: actions.handleImageChange,
           onRemoveProfilePicture: actions.handleRemoveProfilePicture,
@@ -84,6 +127,8 @@ const Profile = () => {
         }}
         onOpenAbout={() => setIsAboutOpen(true)}
         onOpenEdit={() => setIsEditOpen(true)}
+        onOpenFollowers={() => handleOpenUserList('followers')}
+        onOpenFollowing={() => handleOpenUserList('following')}
       />
 
       <ProfilePostsSection
@@ -106,6 +151,15 @@ const Profile = () => {
         userData={resolvedUserData}
         onClose={() => setIsEditOpen(false)}
         onUpdateSuccess={actions.handleProfileUpdateSuccess}
+      />
+
+      <UserListModal
+        isOpen={userListModal.isOpen}
+        onClose={() => setUserListModal(prev => ({ ...prev, isOpen: false }))}
+        title={userListModal.title}
+        users={userListModal.users}
+        isLoading={userListModal.isLoading}
+        onUserClick={handleModalUserClick}
       />
     </div>
   );

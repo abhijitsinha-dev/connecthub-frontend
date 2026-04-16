@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   BiEdit,
   BiCamera,
   BiInfoCircle,
   BiUserPlus,
   BiCheck,
+  BiLoaderAlt,
 } from 'react-icons/bi';
 import ProfileImageActionModal from './ProfileImageActionModal';
 import ProfileImageViewerModal from './ProfileImageViewerModal';
@@ -21,10 +22,11 @@ const ProfileTopSection = ({
   onOpenAbout,
   onOpenEdit,
   isOwnProfile,
-  loggedInUserId,
   onToggleFollow,
+  isTogglingFollow,
+  onOpenFollowers,
+  onOpenFollowing,
 }) => {
-  const [isFollowing, setIsFollowing] = useState(false);
   const [viewerState, setViewerState] = useState({
     isOpen: false,
     imageUrl: '',
@@ -40,12 +42,6 @@ const ProfileTopSection = ({
   const closeViewer = () => {
     setViewerState(prev => ({ ...prev, isOpen: false }));
   };
-
-  useEffect(() => {
-    if (userData?.followers && loggedInUserId) {
-      setIsFollowing(userData.followers.includes(loggedInUserId));
-    }
-  }, [userData?.followers, loggedInUserId]);
 
   // Derive boolean props locally to reduce props passed from parent
   const hasCustomProfilePicture =
@@ -187,7 +183,7 @@ const ProfileTopSection = ({
               <BiInfoCircle className="text-lg" />
               About
             </button>
-            {isOwnProfile ? (
+            {userData.isFollowedByCurrentUser === null ? (
               <button
                 onClick={onOpenEdit}
                 className="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 text-sm sm:text-base bg-bg-secondary text-text-primary font-medium hover:bg-border-primary rounded-full border border-border-primary transition-colors"
@@ -198,25 +194,28 @@ const ProfileTopSection = ({
             ) : (
               <button
                 onClick={() => {
-                  const newState = !isFollowing;
-                  setIsFollowing(newState);
-                  if (onToggleFollow) onToggleFollow(!newState); // pass the *current state* (before toggle) so API knows what to do
+                  if (onToggleFollow && !isTogglingFollow)
+                    onToggleFollow(userData.isFollowedByCurrentUser);
                 }}
-                className={`flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 text-sm sm:text-base font-medium rounded-full border transition-colors ${
-                  isFollowing
+                disabled={isTogglingFollow}
+                className={`flex items-center justify-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 text-sm sm:text-base font-medium rounded-full border transition-all min-w-[110px] sm:min-w-[130px] ${
+                  userData.isFollowedByCurrentUser
                     ? 'bg-bg-secondary text-text-primary border-border-primary hover:bg-border-primary'
                     : 'bg-brand-primary text-white border-brand-primary hover:bg-brand-secondary'
-                }`}
+                } ${isTogglingFollow ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
-                {isFollowing ? (
-                  <>
-                    <BiCheck className="text-lg" />
-                    Following
-                  </>
+                {isTogglingFollow ? (
+                  <BiLoaderAlt className="text-lg animate-spin" />
                 ) : (
                   <>
-                    <BiUserPlus className="text-lg" />
-                    Follow
+                    {userData.isFollowedByCurrentUser ? (
+                      <BiCheck className="text-lg" />
+                    ) : (
+                      <BiUserPlus className="text-lg" />
+                    )}
+                    <span>
+                      {userData.isFollowedByCurrentUser ? 'Following' : 'Follow'}
+                    </span>
                   </>
                 )}
               </button>
@@ -232,8 +231,8 @@ const ProfileTopSection = ({
         </div>
 
         {/* Stats */}
-        <div className="flex gap-6 sm:gap-8 justify-center mt-6 sm:mt-8 pb-4">
-          <div className="text-center">
+        <div className="flex gap-4 sm:gap-8 justify-center mt-6 sm:mt-8 pb-4">
+          <div className="text-center px-3 py-2">
             <span className="block text-xl sm:text-2xl font-bold text-text-primary">
               {userData.postsCount.toLocaleString()}
             </span>
@@ -241,7 +240,15 @@ const ProfileTopSection = ({
               Posts
             </span>
           </div>
-          <div className="text-center">
+
+          <div
+            className={`text-center px-3 py-2 transition-all duration-200 ${
+              userData.followersCount > 0
+                ? 'cursor-pointer hover:bg-bg-secondary rounded-xl'
+                : ''
+            }`}
+            onClick={userData.followersCount > 0 ? onOpenFollowers : undefined}
+          >
             <span className="block text-xl sm:text-2xl font-bold text-text-primary">
               {userData.followersCount.toLocaleString()}
             </span>
@@ -249,7 +256,15 @@ const ProfileTopSection = ({
               Followers
             </span>
           </div>
-          <div className="text-center">
+
+          <div
+            className={`text-center px-3 py-2 transition-all duration-200 ${
+              userData.followingCount > 0
+                ? 'cursor-pointer hover:bg-bg-secondary rounded-xl'
+                : ''
+            }`}
+            onClick={userData.followingCount > 0 ? onOpenFollowing : undefined}
+          >
             <span className="block text-xl sm:text-2xl font-bold text-text-primary">
               {userData.followingCount.toLocaleString()}
             </span>
