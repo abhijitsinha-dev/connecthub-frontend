@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import { BiLoaderAlt, BiMessageRounded, BiX, BiSend } from 'react-icons/bi';
 import PostAuthorHeader from './PostAuthorHeader';
@@ -33,6 +34,50 @@ const MobileCommentsModal = ({ isOpen, onClose, post }) => {
   const [isLoadingComments, setIsLoadingComments] = useState(false);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const { user } = useAuth();
+  const location = useLocation();
+  const openedPath = useRef(location.pathname);
+  const onCloseRef = useRef(onClose);
+
+  // Keep the ref updated with the latest onClose callback
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  // Handle mobile back button to close modal
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Record the current path when modal opens
+    openedPath.current = window.location.pathname;
+
+    // Push state when modal opens to intercept back button
+    // We use a specific key to track if we added this entry
+    if (!window.history.state?.isCommentsModalActive) {
+      window.history.pushState({ isCommentsModalActive: true }, '');
+    }
+
+    const handlePopState = () => {
+      // Close modal when user hits 'back'
+      onCloseRef.current?.();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+
+      // If closing via UI (not popstate) AND we are still on the same page,
+      // we pop the dummy state to keep history clean.
+      // If we've navigated away (e.g., clicking a user profile link), 
+      // we must NOT call history.back() as it would revert the navigation.
+      if (
+        window.history.state?.isCommentsModalActive &&
+        window.location.pathname === openedPath.current
+      ) {
+        window.history.back();
+      }
+    };
+  }, [isOpen]);
 
   // Gesture State
   const [dragOffset, setDragOffset] = useState(0);

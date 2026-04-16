@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { BiArrowBack } from 'react-icons/bi';
 import { BiX } from 'react-icons/bi';
 import { useUIContext } from '../../context/UIContext';
@@ -13,6 +13,49 @@ const Search = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const skipHistoryPop = useRef(false);
+  const location = useLocation();
+  const openedPath = useRef(location.pathname);
+
+  // Handle mobile back button to close search panel
+  useEffect(() => {
+    if (!isSearchOpen) {
+      // Reset the skip flag when search is closed
+      return () => {
+        skipHistoryPop.current = false;
+      };
+    }
+
+    // Record current path
+    openedPath.current = window.location.pathname;
+
+    // Push state when search opens to intercept back button
+    // Only push if we don't already have an active search state
+    if (!window.history.state?.isSearchActive) {
+      window.history.pushState({ isSearchActive: true }, '');
+    }
+
+    const handlePopState = () => {
+      // Close search when user hits 'back'
+      setIsSearchOpen(false);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+
+      // If closing via UI (not popstate), we might need to pop the state
+      // but only if we are not navigating away or explicitly skipping it
+      if (
+        window.history.state?.isSearchActive &&
+        !skipHistoryPop.current &&
+        window.location.pathname === openedPath.current
+      ) {
+        window.history.back();
+      }
+    };
+  }, [isSearchOpen, setIsSearchOpen]);
 
   // Debounced search logic
   useEffect(() => {
@@ -50,6 +93,7 @@ const Search = () => {
   };
 
   const handleUserClick = (userId, username) => {
+    skipHistoryPop.current = true;
     navigate(`/profile/${username}`);
     handleClose();
   };
