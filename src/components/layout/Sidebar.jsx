@@ -13,10 +13,12 @@ import {
 import { useTheme } from '../../context/ThemeContext';
 import { useUIContext } from '../../context/UIContext';
 import { useAuth } from '../../context/AuthContext';
+import { useSocket } from '../../hooks/useSocket';
 import { useState } from 'react';
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
+  const { unreadCount } = useSocket();
   const [isLoading, setIsLoading] = useState(false);
   const {
     isSidebarCollapsed: isCollapsed,
@@ -124,7 +126,14 @@ const Sidebar = () => {
             title={isCollapsed ? 'Messenger' : ''}
             onClick={() => setIsSearchOpen(false)}
           >
-            <BiMessageRoundedDots className="text-[24px] min-w-6" />
+            <div className="relative">
+              <BiMessageRoundedDots className="text-[24px] min-w-6" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold grid place-items-center border-2 border-bg-primary">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </div>
             {!isCollapsed && (
               <span className="ml-4 whitespace-nowrap">Messenger</span>
             )}

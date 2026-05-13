@@ -8,10 +8,12 @@ import {
 } from 'react-icons/bi';
 import { useUIContext } from '../../context/UIContext';
 import { useAuth } from '../../context/AuthContext';
+import { useSocket } from '../../hooks/useSocket';
 
 const BottomNav = () => {
   const { isSearchOpen, setIsSearchOpen } = useUIContext();
   const { user } = useAuth();
+  const { unreadCount } = useSocket();
 
   const navLinkClasses = ({ isActive }) =>
     `flex flex-col items-center justify-center w-full h-full text-xs transition-colors ${
@@ -61,7 +63,14 @@ const BottomNav = () => {
         className={navLinkClasses}
         onClick={() => setIsSearchOpen(false)}
       >
-        <BiMessageRoundedDots className="text-[24px] mb-1" />
+        <div className="relative">
+          <BiMessageRoundedDots className="text-[24px] mb-1" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1.5 min-w-[16px] h-[16px] px-1 rounded-full bg-red-500 text-white text-[9px] font-bold grid place-items-center border-2 border-bg-primary">
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
+        </div>
       </NavLink>
 
       <NavLink

@@ -17,6 +17,8 @@
   --text-primary: #111827;
   --text-secondary: #6b7280;
   --action-like: #e11d48;
+  --scrollbar-thumb: #e2e8f0;
+  --scrollbar-thumb-hover: #cbd5e1;
 }
 
 .dark {
@@ -27,6 +29,8 @@
   --text-primary: #f9fafb;
   --text-secondary: #9ca3af;
   --action-like: #fb7185;
+  --scrollbar-thumb: #334155;
+  --scrollbar-thumb-hover: #475569;
 }
 
 @layer base {
@@ -41,5 +45,35 @@
     margin: 0;
     background-color: var(--bg-primary);
     color: var(--text-primary);
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+
+  /* Custom Scrollbar Styles */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+
+  /* Utility for hiding scrollbars but keeping functionality */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
